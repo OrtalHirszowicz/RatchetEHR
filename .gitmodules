@@ -1,0 +1,3 @@
+[submodule "OB/OMOP/omop-learn/Tasks/BSI/OB/OMOP/omop-learn/Tasks/BSI/chronological-map-phenotypes"]
+	path = OB/OMOP/omop-learn/Tasks/BSI/OB/OMOP/omop-learn/Tasks/BSI/chronological-map-phenotypes
+	url = https://github.com/spiros/chronological-map-phenotypes.git

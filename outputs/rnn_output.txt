@@ -1,0 +1,31 @@
+Folder Num:  _mimiciv
+Executed 1 SQLs
+Database already exists, set replace=True to rebuild
+Table not found in schema "mimiciv_bsi_100_0.5h_test", regenerating
+Regenerated Cohort in 2.073049545288086 seconds
+Precentage of 1 label:  0.044470450555880635
+For now uses Weighted random sampler
+Precentage of 1 label after cleaning:  0.04648710821431994
+For now uses Weighted random sampler
+126
+Experiment number  0
+  epoch    accuracy    auc_pr      f1    roc_auc    train_loss    cp       dur
+-------  ----------  --------  ------  ---------  ------------  ----  --------
+      1      [36m0.4870[0m    [32m0.7800[0m  [35m0.3951[0m     [31m0.5878[0m        [94m8.8167[0m     +  122.8259
+      2      [36m0.5375[0m    [32m0.8181[0m  [35m0.4873[0m     [31m0.6581[0m        [94m7.7549[0m     +  121.7278
+      3      [36m0.5581[0m    [32m0.8402[0m  [35m0.5313[0m     [31m0.6773[0m        [94m7.3249[0m     +  123.4206
+      4      [36m0.5666[0m    0.8261  [35m0.5389[0m     0.6722        7.3778        124.6159
+      5      [36m0.5830[0m    0.8366  [35m0.5600[0m     [31m0.6792[0m        [94m6.9892[0m     +  123.5332
+      6      0.5816    0.8358  0.5537     [31m0.6850[0m        [94m6.9848[0m     +  121.9456
+      7      0.5771    0.8306  0.5572     0.6764        7.1912        120.8207
+      8      [36m0.5858[0m    [32m0.8403[0m  [35m0.5669[0m     [31m0.6905[0m        [94m6.9271[0m     +  123.5153
+      9      0.5852    [32m0.8476[0m  [35m0.5704[0m     0.6840        [94m6.8303[0m        120.7837
+     10      [36m0.5897[0m    0.8394  0.5696     0.6871        6.8532        121.5503
+Current ROC-AUC score on the val set:  0.6809122880125267
+Current AUC PR score on the val set:  0.19800239693053864
+Current ROC-AUC score on the test set:  0.6862747938273751
+Current AUC PR score on the test set:  0.2998546945637353
+Some information on the sets:
+Training size:  8798
+Validation size:  2640
+Test size:  1635

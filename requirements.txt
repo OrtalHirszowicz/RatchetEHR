@@ -1,0 +1,16 @@
+skorch
+shap
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+pytorch
+transformers
+einops
+sqlalchemy
+toolz
+tqdm
+rpy2
+tune-sklearn
+xgboost

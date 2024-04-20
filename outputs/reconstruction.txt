@@ -1,0 +1,19 @@
+Num device:  1
+Executed 1 SQLs
+Executed 1 SQLs
+Database already exists, set replace=True to rebuild
+Regenerating Table (replace=True)
+Regenerated Cohort in 0.26424288749694824 seconds
+Experiment number  0
+1
+  epoch    train_loss    cp       dur
+-------  ------------  ----  --------
+      1    [36m23503.5590[0m     +  944.4443
+      2     [36m1293.7501[0m     +  901.5004
+      3      [36m879.7421[0m     +  917.4917
+      4      [36m830.4794[0m     +  880.7317
+1
+Current ROC-AUC score on the test set: 994.4606400250709
+Current ROC-AUC score on the validation set: 904.2329495112594
+
+Some information on the sets:

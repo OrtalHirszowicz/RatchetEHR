@@ -1,0 +1,42 @@
+feature_value_eicu, feature_value_mimic
+aplastic anemia, Anemia
+hemolytic anemia, Anemia
+angina, Angina
+angina - class I, Angina
+angina - class II, Angina
+angina - class III, Angina
+angina - class IV, Angina
+angina - severity unknown, Angina
+asthma, Asthma
+CHF - class II, CHF
+CHF - severity unknown, CHF
+CHF, CHF
+CHF - class III, CHF
+CHF - class I, CHF
+CHF - class IV, CHF
+COPD - severe, COPD
+COPD - no limitations, COPD
+COPD - moderate, COPD
+stroke - within 6 months, CVA
+stroke - date unknown, CVA
+stroke - within 5 years, CVA
+stroke - remote, CVA
+stroke - within 2 years, CVA
+insulin dependent diabetes, Diabetes - Insulin
+UGI bleeding, GI Bleed
+peptic ulcer disease with h/o GI bleeding, GI Bleed
+hypertension requiring treatment, Hypertension
+liver, Liver Failure
+MI - remote, MI
+MI - within 6 months, MI
+MI - within 5 years, MI
+MI - within 2 years, MI
+MI - date unknown, MI
+peripheral vascular disease, PVD
+renal failure - hemodialysis, Renal Failure
+renal failure - peritoneal dialysis, Renal Failure
+renal failure- not currently dialyzed, Renal Failure
+petite mal seizures, Seizures
+focal seizures, Seizures
+other seizures, Seizures
+generalized seizures, Seizures

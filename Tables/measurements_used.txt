@@ -1,0 +1,91 @@
+MIMIC-III -- eiCU-lab -- eiCU-table
+ALT -- ALT (SGPT) -- lab
+Hemoglobin -- Hgb -- lab
+Anion Gap -- anion gap -- lab
+PT(11-13.5) -- PT -- lab
+Eosinophils -- -eos -- lab
+Chloride -- chloride -- lab
+BUN (6-20) -- BUN -- lab
+Calculated Total CO2 -- Total CO2 -- lab
+Potassium (3.5-5.3) -- potassium -- lab
+INR (2-4 ref. range) -- PT - INR -- lab
+Prothrombin time -- PT -- lab
+Monocytes -- -monos -- lab
+Magnesium -- magnesium -- lab
+Basophils -- -basos -- lab
+Bilirubin, Total -- total bilirubin -- lab
+RBC -- RBC -- lab
+Alkaline Phosphatase -- alkaline phos. -- lab
+Lactate -- lactate -- lab
+Alanine Aminotransferase (ALT) -- ALT (SGPT)  -- lab
+WBC   (4-11,000) -- WBC x 1000 -- lab
+Potassium, Whole Blood -- potassium -- lab
+Bands -- -bands -- lab
+Hematocrit, Calculated -- Hct -- lab
+pCO2 -- paCO2 -- lab
+pO2 -- paO2 -- lab
+C-Reactive Protein -- CRP -- lab
+MCH -- MCH -- lab
+Platelet Count -- platelets x 1000 -- lab
+White Blood Cells -- WBC x 1000 -- lab
+Lactate Dehydrogenase (LD) -- LDH -- lab
+Temperature -- Temperature -- lab
+Base Excess -- Base Excess -- lab
+Specific Gravity -- urinary specific gravity -- lab
+Mean Airway Pressure -- Mean Airway Pressure -- lab
+Lymphocytes -- -lymphs -- lab
+Calcium (8.4-10.2) -- calcium -- lab
+MCV -- MCV -- lab
+Respiratory Rate -- Respiratory Rate -- lab
+Creatinine -- creatinine -- lab
+INR -- PT - INR -- lab
+Carbon Dioxide -- Total CO2 -- lab
+Free Calcium -- ionized calcium -- lab
+PT -- PT - INR -- lab
+RDW -- RDW -- lab
+WBC -- WBC x 1000 -- lab
+Ionized Calcium -- ionized calcium -- lab
+Urea Nitrogen -- 24 h urine urea nitrogen -- lab
+Hematocrit -- Hct -- lab
+HCO3 (serum) -- HCO3 -- lab
+Glucose -- glucose -- lab
+Sodium -- sodium -- lab
+Red Blood Cells -- RBC -- lab
+BUN -- BUN -- lab
+Creatinine (0-1.3) -- creatinine -- lab
+Chloride (100-112) -- chloride -- lab
+pH -- pH -- lab
+Magnesium (1.6-2.6) -- magnesium -- lab
+INR(PT) -- PT - INR -- lab
+Platelets -- platelets x 1000 -- lab
+Asparate Aminotransferase (AST) -- AST (SGOT) -- lab
+Bicarbonate -- bicarbonate -- lab
+Phosphate -- phosphate -- lab
+Potassium -- potassium -- lab
+Glucose (70-105) -- glucose -- lab
+Calcium, Total -- calcium -- lab
+MCHC -- MCHC -- lab
+C Reactive Protein (CRP) -- CRP -- lab
+PTT -- PTT -- lab
+WBC (4-11,000) -- WBC -- lab
+PTT(22-35) -- PTT -- lab
+Albumin -- albumin -- lab
+Arterial BP [Systolic] -- Invasive BP Systolic -- nursingcharting
+Verbal Response -- Verbal -- nursingcharting
+NBP [Systolic] -- Non-Invasive BP Systolic -- nursingcharting
+Temperature F -- Temperature (F) -- nursingcharting
+Motor Response -- Motor -- nursingcharting
+Pain Level -- Pain -- nursingcharting
+Temperature C (calc) -- Temperature (C) -- nursingcharting
+Arterial BP [Diastolic] -- Invasive BP Diastolic -- nursingcharting
+Oxygen Saturation -- O2 Saturation) -- nursingcharting
+Eye Opening -- Eyes -- nursingcharting
+NBP Mean -- Non-Invasive BP Mean -- nursingcharting
+NBP [Diastolic] -- Non-Invasive BP Diastolic -- nursingcharting
+GCS Total -- GCS Total -- nursingcharting
+Peak Insp. Pressure -- PIP -- labothername
+Lactic Acid -- lactic acid -- labothername
+Neutrophils -- Neutrophils -- labothername
+Plateau Pressure -- Plateau Pressure -- respchart
+SpO2 -- Adult Con Pt/Vent SpO2 -- respchart
+O2 Flow -- Oxygen Flow Rate -- respchart

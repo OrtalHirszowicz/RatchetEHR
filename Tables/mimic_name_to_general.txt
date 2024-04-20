@@ -1,0 +1,92 @@
+MIMIC-III -- General
+NBP [Diastolic] -- NBP [Diastolic]
+Respiratory Rate -- Respiratory Rate
+pO2 -- pO2
+Asparate Aminotransferase (AST) -- AST
+Magnesium (1.6-2.6) -- Magnesium
+pH -- pH
+Potassium (3.5-5.3) -- Potassium
+Pain Level -- Pain Level
+Chloride (100-112) -- Chloride
+Potassium -- Potassium
+Glucose (70-105) -- Glucose
+Hemoglobin -- Hemoglobin
+GCS Total -- GCS Total
+NBP Mean -- NBP Mean
+Eye Opening -- Eye Opening
+NBP [Systolic] -- NBP [Systolic]
+WBC -- WBC
+Alkaline Phosphatase -- ALP
+Alanine Aminotransferase (ALT) -- ALT
+Lactate -- Lactate
+Prothrombin time -- PT
+Phosphate -- Phosphate
+C-Reactive Protein -- CRP
+Magnesium -- Magnesium
+Hematocrit -- Hematocrit
+Free Calcium -- Free Calcium
+Anion Gap -- Anion Gap
+Temperature -- Temperature
+O2 Flow -- O2 Flow
+Arterial BP [Systolic] -- Arterial BP [Systolic]
+Motor Response -- Motor Response
+Platelet Count -- Platelet Count
+Lymphocytes -- Lymphocytes
+MCV -- MCV
+Eosinophils -- Eosinophils
+Mean Airway Pressure -- Mean Airway Pressure
+Hematocrit, Calculated -- Hematocrit
+SpO2 -- SpO2
+Albumin -- Albumin
+Specific Gravity -- Specific Gravity
+Chloride -- Chloride
+Arterial BP [Diastolic] -- Arterial BP [Diastolic]
+BUN -- BUN
+ALT -- 	ALT
+MCH -- MCH
+pCO2 -- pCO2
+Neutrophils -- Neutrophils
+Lactic Acid -- Lactic Acid
+Glucose -- Glucose
+Potassium, Whole Blood -- Potassium
+Peak Insp. Pressure -- PIP
+Ionized Calcium -- Free Calcium
+Calcium, Total -- Calcium
+Sodium -- Sodium
+INR -- INR
+White Blood Cells -- WBC
+PT(11-13.5) -- PT
+INR(PT) -- INR
+RBC -- RBC
+Monocytes -- Monocytes
+Creatinine -- Creatinine
+Oxygen Saturation -- Oxygen Saturation
+HCO3 (serum) -- HCO3
+Urea Nitrogen -- BUN
+Carbon Dioxide -- Calculated Total CO2
+Temperature C (calc) -- Temperature
+RDW -- RDW
+MCHC -- MCHC
+Red Blood Cells -- RBC
+Verbal Response -- Verbal Response
+Temperature F -- Temperature
+PT -- PT
+Bands -- Bands
+Bilirubin, Total -- Bilirubin
+Basophils -- Basophils
+WBC (4-11,000) -- WBC
+Platelets --  PLT
+PTT(22-35) -- PTT
+Creatinine (0-1.3) -- Creatinine
+Calcium (8.4-10.2) -- Calcium
+Calculated Total CO2 -- Calculated Total CO2
+Base Excess -- Base Excess
+Lactate Dehydrogenase (LD) -- LD
+BUN (6-20) -- BUN
+PTT -- PTT
+WBC (4-11,000) -- WBC
+C Reactive Protein (CRP) -- CRP
+Bicarbonate -- HCO3
+INR (2-4 ref. range) -- INR
+Plateau Pressure -- Plateau Pressure
+WBC   (4-11,000) -- WBC

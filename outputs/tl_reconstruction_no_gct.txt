@@ -1,0 +1,154 @@
+Folder Num:  
+Executed 1 SQLs
+Database already exists, set replace=True to rebuild
+Table not found in schema "mimiciv_bsi_100_4h_test", regenerating
+Regenerated Cohort in 1.3866496086120605 seconds
+Precentage of 1 label:  0.044470450555880635
+For now uses Weighted random sampler
+Precentage of 1 label after cleaning:  0.05150214592274678
+For now uses Weighted random sampler
+126
+Experiment number  0
+6
+  epoch    accuracy    auc_pr      f1    roc_auc    train_loss    cp       dur
+-------  ----------  --------  ------  ---------  ------------  ----  --------
+      1      [36m0.5290[0m    [32m0.6799[0m  [35m0.6107[0m     [31m0.5137[0m        [94m1.3044[0m     +  109.7921
+      2      [36m0.5322[0m    [32m0.7138[0m  0.5937     [31m0.5602[0m        [94m1.2310[0m     +  110.7926
+      3      [36m0.6191[0m    [32m0.8289[0m  [35m0.6653[0m     [31m0.6893[0m        [94m0.9873[0m     +  111.4456
+      4      [36m0.6517[0m    [32m0.8500[0m  [35m0.6832[0m     [31m0.7345[0m        [94m0.8807[0m     +  114.5817
+      5      [36m0.6682[0m    [32m0.8523[0m  [35m0.7003[0m     [31m0.7409[0m        [94m0.8570[0m     +  111.4972
+6
+Current ROC-AUC score on the val set:  0.8329271079290121
+Current AUC PR score on the val set:  0.3460834105663541
+Current ROC-AUC score on the test set:  0.7600017668736433
+Current AUC PR score on the test set:  0.25911029752658454
+Experiment number  1
+6
+  epoch    accuracy    auc_pr      f1    roc_auc    train_loss    cp       dur
+-------  ----------  --------  ------  ---------  ------------  ----  --------
+      1      [36m0.5454[0m    [32m0.7000[0m  [35m0.6174[0m     [31m0.5470[0m        [94m1.2878[0m     +  109.3238
+      2      [36m0.5742[0m    [32m0.7772[0m  0.6047     [31m0.6432[0m        [94m1.1200[0m     +  114.6533
+      3      [36m0.6566[0m    [32m0.8572[0m  [35m0.6888[0m     [31m0.7420[0m        [94m0.8568[0m     +  119.6030
+      4      [36m0.6635[0m    [32m0.8592[0m  [35m0.6967[0m     0.7373        [94m0.8488[0m        117.5707
+      5      [36m0.6724[0m    [32m0.8650[0m  [35m0.7069[0m     [31m0.7531[0m        [94m0.8159[0m     +  115.6087
+6
+Current ROC-AUC score on the val set:  0.6825348465229645
+Current AUC PR score on the val set:  0.2753028880281995
+Current ROC-AUC score on the test set:  0.6200275127467312
+Current AUC PR score on the test set:  0.15983216076784304
+Experiment number  2
+6
+  epoch    accuracy    auc_pr      f1    roc_auc    train_loss    cp       dur
+-------  ----------  --------  ------  ---------  ------------  ----  --------
+      1      [36m0.5222[0m    [32m0.6775[0m  [35m0.6139[0m     [31m0.5070[0m        [94m1.3077[0m     +  111.9500
+      2      0.5179    [32m0.6798[0m  0.5861     [31m0.5211[0m        [94m1.2708[0m     +  112.8627
+      3      [36m0.5528[0m    [32m0.7413[0m  [35m0.6211[0m     [31m0.5859[0m        [94m1.1824[0m     +  116.3129
+      4      [36m0.6106[0m    [32m0.8148[0m  [35m0.6431[0m     [31m0.6874[0m        [94m1.0103[0m     +  113.8254
+      5      [36m0.6580[0m    [32m0.8529[0m  [35m0.6869[0m     [31m0.7394[0m        [94m0.8591[0m     +  114.8333
+6
+Current ROC-AUC score on the val set:  0.7712697082793815
+Current AUC PR score on the val set:  0.270729352776723
+Current ROC-AUC score on the test set:  0.722891110101469
+Current AUC PR score on the test set:  0.2748145089732022
+Experiment number  3
+6
+  epoch    accuracy    auc_pr      f1    roc_auc    train_loss    cp       dur
+-------  ----------  --------  ------  ---------  ------------  ----  --------
+      1      [36m0.5109[0m    [32m0.6736[0m  [35m0.5905[0m     [31m0.5071[0m        [94m1.3105[0m     +  110.9318
+      2      [36m0.5498[0m    [32m0.7411[0m  [35m0.6182[0m     [31m0.5829[0m        [94m1.1942[0m     +  113.6250
+      3      [36m0.6204[0m    [32m0.8229[0m  [35m0.6518[0m     [31m0.6945[0m        [94m0.9911[0m     +  114.5618
+      4      [36m0.6605[0m    [32m0.8550[0m  [35m0.6910[0m     [31m0.7413[0m        [94m0.8641[0m     +  114.5403
+      5      [36m0.6731[0m    0.8504  [35m0.6996[0m     [31m0.7432[0m        [94m0.8582[0m     +  111.6412
+6
+Current ROC-AUC score on the val set:  0.6813542539416559
+Current AUC PR score on the val set:  0.2125307088626949
+Current ROC-AUC score on the test set:  0.6975743348982785
+Current AUC PR score on the test set:  0.22119495867701472
+Experiment number  4
+6
+  epoch    accuracy    auc_pr      f1    roc_auc    train_loss    cp       dur
+-------  ----------  --------  ------  ---------  ------------  ----  --------
+      1      [36m0.5153[0m    [32m0.6763[0m  [35m0.5845[0m     [31m0.5206[0m        [94m1.3095[0m     +  154.1787
+      2      [36m0.5322[0m    [32m0.7132[0m  [35m0.5901[0m     [31m0.5570[0m        [94m1.2397[0m     +  137.7083
+      3      [36m0.5950[0m    [32m0.7973[0m  [35m0.6437[0m     [31m0.6621[0m        [94m1.0694[0m     +  114.3711
+      4      [36m0.6426[0m    [32m0.8392[0m  [35m0.6754[0m     [31m0.7153[0m        [94m0.9279[0m     +  114.8635
+      5      [36m0.6767[0m    [32m0.8652[0m  [35m0.7157[0m     [31m0.7498[0m        [94m0.8188[0m     +  114.9673
+6
+Current ROC-AUC score on the val set:  0.8516642547033285
+Current AUC PR score on the val set:  0.42420457886085994
+Current ROC-AUC score on the test set:  0.596774193548387
+Current AUC PR score on the test set:  0.17613580582802374
+Experiment number  5
+6
+  epoch    accuracy    auc_pr      f1    roc_auc    train_loss    cp       dur
+-------  ----------  --------  ------  ---------  ------------  ----  --------
+      1      [36m0.5127[0m    [32m0.6707[0m  [35m0.5921[0m     [31m0.5035[0m        [94m1.3292[0m     +  113.5772
+      2      [36m0.5274[0m    [32m0.6901[0m  [35m0.6186[0m     [31m0.5193[0m        [94m1.2567[0m     +  113.1055
+      3      [36m0.5604[0m    [32m0.7439[0m  0.6100     [31m0.6050[0m        [94m1.1806[0m     +  113.1155
+      4      [36m0.6172[0m    [32m0.8282[0m  [35m0.6531[0m     [31m0.6960[0m        [94m0.9754[0m     +  113.8466
+      5      [36m0.6516[0m    [32m0.8554[0m  [35m0.6873[0m     [31m0.7389[0m        [94m0.8667[0m     +  114.7584
+6
+Current ROC-AUC score on the val set:  0.7799527762967476
+Current AUC PR score on the val set:  0.32253832012698824
+Current ROC-AUC score on the test set:  0.7611439244787722
+Current AUC PR score on the test set:  0.19291202925648687
+Experiment number  6
+6
+  epoch    accuracy    auc_pr      f1    roc_auc    train_loss    cp       dur
+-------  ----------  --------  ------  ---------  ------------  ----  --------
+      1      [36m0.5190[0m    [32m0.6765[0m  [35m0.5987[0m     [31m0.5090[0m        [94m1.3145[0m     +  112.5884
+      2      0.5159    [32m0.6809[0m  0.5971     [31m0.5121[0m        [94m1.2676[0m     +  113.4655
+      3      [36m0.5418[0m    [32m0.7359[0m  [35m0.6060[0m     [31m0.5726[0m        [94m1.1944[0m     +  115.4113
+      4      [36m0.6152[0m    [32m0.8258[0m  [35m0.6446[0m     [31m0.7012[0m        [94m0.9707[0m     +  115.7441
+      5      [36m0.6580[0m    [32m0.8608[0m  [35m0.6995[0m     [31m0.7375[0m        [94m0.8581[0m     +  114.7179
+6
+Current ROC-AUC score on the val set:  0.7682991850102825
+Current AUC PR score on the val set:  0.3219234124129187
+Current ROC-AUC score on the test set:  0.7692841637639457
+Current AUC PR score on the test set:  0.22562497199693923
+Experiment number  7
+6
+  epoch    accuracy    auc_pr      f1    roc_auc    train_loss    cp       dur
+-------  ----------  --------  ------  ---------  ------------  ----  --------
+      1      [36m0.5175[0m    [32m0.6791[0m  [35m0.5920[0m     [31m0.5172[0m        [94m1.3158[0m     +  112.5819
+      2      [36m0.5176[0m    [32m0.6960[0m  [35m0.5936[0m     [31m0.5239[0m        [94m1.2505[0m     +  113.7150
+      3      [36m0.5869[0m    [32m0.7874[0m  [35m0.6319[0m     [31m0.6531[0m        [94m1.0915[0m     +  112.4878
+      4      [36m0.6496[0m    [32m0.8532[0m  [35m0.6813[0m     [31m0.7358[0m        [94m0.8735[0m     +  112.9988
+      5      [36m0.6700[0m    [32m0.8623[0m  [35m0.7049[0m     [31m0.7489[0m        [94m0.8322[0m     +  113.8186
+6
+Current ROC-AUC score on the val set:  0.8464848807982328
+Current AUC PR score on the val set:  0.44420625417402226
+Current ROC-AUC score on the test set:  0.724191024281892
+Current AUC PR score on the test set:  0.21001298382245634
+Experiment number  8
+6
+  epoch    accuracy    auc_pr      f1    roc_auc    train_loss    cp       dur
+-------  ----------  --------  ------  ---------  ------------  ----  --------
+      1      [36m0.5310[0m    [32m0.6845[0m  [35m0.6175[0m     [31m0.5173[0m        [94m1.2981[0m     +  108.7152
+      2      0.5293    [32m0.7081[0m  0.5933     [31m0.5442[0m        [94m1.2446[0m     +  110.7383
+      3      [36m0.5877[0m    [32m0.7945[0m  [35m0.6356[0m     [31m0.6531[0m        [94m1.0791[0m     +  110.9218
+      4      [36m0.6354[0m    [32m0.8389[0m  [35m0.6634[0m     [31m0.7177[0m        [94m0.9264[0m     +  115.1359
+      5      [36m0.6726[0m    [32m0.8643[0m  [35m0.7091[0m     [31m0.7515[0m        [94m0.8273[0m     +  114.8292
+6
+Current ROC-AUC score on the val set:  0.7803336126132987
+Current AUC PR score on the val set:  0.2315656284255595
+Current ROC-AUC score on the test set:  0.7367926195163814
+Current AUC PR score on the test set:  0.22112773261072122
+Experiment number  9
+6
+  epoch    accuracy    auc_pr      f1    roc_auc    train_loss    cp       dur
+-------  ----------  --------  ------  ---------  ------------  ----  --------
+      1      [36m0.5196[0m    [32m0.6844[0m  [35m0.5956[0m     [31m0.5188[0m        [94m1.3092[0m     +  113.5195
+      2      [36m0.5409[0m    [32m0.7137[0m  [35m0.6236[0m     [31m0.5460[0m        [94m1.2295[0m     +  114.0850
+      3      [36m0.6042[0m    [32m0.8019[0m  [35m0.6400[0m     [31m0.6733[0m        [94m1.0530[0m     +  114.4328
+      4      [36m0.6322[0m    [32m0.8529[0m  [35m0.6597[0m     [31m0.7252[0m        [94m0.8778[0m     +  113.6474
+      5      [36m0.6572[0m    [32m0.8555[0m  [35m0.6892[0m     [31m0.7385[0m        [94m0.8601[0m     +  114.3653
+6
+Current ROC-AUC score on the val set:  0.6811067103358976
+Current AUC PR score on the val set:  0.34611253402784337
+Current ROC-AUC score on the test set:  0.7223421172194457
+Current AUC PR score on the test set:  0.279007837024999
+Some information on the sets:
+Training size:  7281
+Validation size:  729
+Test size:  1340

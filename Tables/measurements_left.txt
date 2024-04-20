@@ -1,0 +1,40 @@
+Heart Rate #(heartrate, column name) vitalperiodic
+GcsApacheIIScore #apachepatientresult
+
+Arterial BP [Systolic] #(Invasive BP Systolic), nursingcharting
+Verbal Response #(Verbal) nursingcharting
+NBP [Systolic] #(Non-Invasive BP Systolic) nursingcharting
+Temperature F #(Temperature (F)) nursingcharting
+Motor Response #(Motor) nursingcharting
+Pain Level #(Pain) nursingcharting
+Temperature C (calc) #(Temperature (C)) nursingcharting
+Arterial BP [Diastolic] #(Invasive BP Diastolic), nursingcharting
+Oxygen Saturation, #(O2 Saturation), nursingcharting
+Eye Opening #(Eyes), nursingcharting
+NBP Mean #(Non-Invasive BP Mean) nursingcharting
+NBP [Diastolic] #(Non-Invasive BP Diastolic) nursingcharting
+GCS Total, #(GCS Total) nursingcharting
+
+Peak Insp. Pressure #(PIP) labothername
+Lactic Acid, #(lactic acid) labothername
+Neutrophils #(Neutrophils) labothername
+
+Plateau Pressure #(Plateau Pressure) respchart
+SpO2, #(Adult Con Pt/Vent SpO2) respchart
+O2 Flow, #(Oxygen Flow Rate) respchart
+
+Braden Score
+Phosphorous(2.7-4.5)
+Phosphorous
+Riker-SAS Scale
+Epithelial Cells
+HR Alarm [Low]
+Foley
+Pain Present
+Atypical Lymphocytes
+Creatine Kinase (CK)
+Daily Weight
+Urine Out Foley
+calprevflg 
+HR Alarm [High]
+Arterial Base Excess

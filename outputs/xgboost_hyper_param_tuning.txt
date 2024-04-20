@@ -1,0 +1,10 @@
+Folder Num:  _mimiciv
+Executed 1 SQLs
+Database already exists, set replace=True to rebuild
+Table not found in schema "mimiciv_bsi_100_4h_test", regenerating
+Regenerated Cohort in 1.493683099746704 seconds
+Precentage of 1 label:  0.044470450555880635
+For now uses Weighted random sampler
+Precentage of 1 label after cleaning:  nan
+For now uses Weighted random sampler
+126
