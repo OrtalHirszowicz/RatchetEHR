@@ -132,7 +132,6 @@ db.execute(
 
 # %%
 cohort_script_path = config.SQL_PATH_COHORTS + '/' + hyper_params.CURR_TASK + '_eicu_cohort.sql'
-database_script_path = config.SQL_PATH_COHORTS + '/BSI_database.sql'
 
 # cohort parameters  
 params = {
@@ -184,7 +183,6 @@ external_cohort_script_path = config.SQL_PATH_COHORTS + '/' + hyper_params.CURR_
 external_schema_name = '"' + TASK + '_external_test' +'"' # all created tables will be created using this schema
 external_cohort_name = '"' + '__' + TASK + '_external_cohort' + '"'
 external_db = dbutils.Database(config_path, external_schema_name, connect_args, cdm_schema_name)
-database_script_path = config.SQL_PATH_COHORTS + '/BSI_database.sql'
 
 if reset_schema:
     external_db.execute(
