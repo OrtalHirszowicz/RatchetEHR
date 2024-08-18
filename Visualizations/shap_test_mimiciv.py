@@ -158,7 +158,6 @@ db.execute(
 
 # %%
 cohort_script_path = config.SQL_PATH_COHORTS + '/' + hyper_params.CURR_TASK + '_mimiciv_cohort.sql'
-database_script_path = config.SQL_PATH_COHORTS + '/BSI_database.sql'
 
 # cohort parameters  
 params = {
