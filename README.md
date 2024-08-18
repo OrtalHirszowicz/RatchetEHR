@@ -29,6 +29,8 @@ installation instructions can be found in the following link: https://github.com
 After installing the MIMICIV dataset, please install the required packages by running the following command:
 pip install -r requirements.txt
 
+Afterwards, please fill the config.py file with the installed database information.
+
 ## Running the code
 First, please install the required packages as mentioned in the installation section.
 The following scripts are used for training and testing the model:
