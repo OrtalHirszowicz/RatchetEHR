@@ -141,17 +141,31 @@ def select_features(visits_data, X_train):
 
 def get_data(visits_data, person_indices, dataset_dict, 
                 test_val_precentage, validation_precentage, 
-                max_visits, n_visits, curr_cohort, featureSetInfo = None, fix_imbalance = False, need_to_clean_data = False, source_visits_data = None):
+                max_visits, n_visits, curr_cohort, featureSetInfo = None, fix_imbalance = False, need_to_clean_data = False, source_visits_data = None, random_state=None):
     orig_X = sorted(list(person_indices), key =  lambda x: x[1])
     X = orig_X
     if 'is_last_years' in dataset_dict:
         X = [x for x, is_last_year in zip(orig_X, dataset_dict['is_last_years']) if is_last_year == 0]
     y = get_y(X, curr_cohort)
     X_train, X_val_test = train_test_split(X,
-        test_size = test_val_precentage,  stratify =y
+        test_size = test_val_precentage,  stratify =y, random_state=random_state
     )
+
+    #### Trying startify * 3
+    # import ipdb; ipdb.set_trace()
+    
+    # person_ids_in_X_train = [person_id for _, person_id in X_train] 
+    # person_ids_in_X_test = [person_id for _, person_id in X_val_test] 
+    # cohort_with_y_equals_1 = curr_cohort[curr_cohort['y'] == 1]
+    # person_ids_with_y_equals = set(cohort_with_y_equals_1['example_id'])
+    # positive_train = [person_id for person_id in person_ids_in_X_train if person_id in person_ids_with_y_equals]
+    # positive_test = [person_id for person_id in person_ids_in_X_test if person_id in person_ids_with_y_equals]
+
+
+
+    ####
     y_test = get_y(X_val_test, curr_cohort)
-    X_val, X_test = train_test_split(X_val_test, test_size = validation_precentage, stratify = y_test) #, random_state=42)
+    X_val, X_test = train_test_split(X_val_test, test_size = validation_precentage, stratify = y_test, random_state=random_state)
     y_train = get_y(X_train, curr_cohort)
     y_val = get_y(X_val, curr_cohort)
     y_test = get_y(X_test, curr_cohort)

@@ -58,6 +58,7 @@ class mAdamW(Optimizer):
 
         self._step += 1
         rate = self.rate(self._step)
+        print(f"Updated LR: {group['lr']}")
 
         for group in self.param_groups:
 
@@ -75,6 +76,7 @@ class mAdamW(Optimizer):
                 if grad.is_sparse:
                     raise RuntimeError("Adam does not support sparse gradients, please consider SparseAdam instead")
 
+                # import ipdb; ipdb.set_trace()
                 state = self.state[p]
 
                 # State initialization

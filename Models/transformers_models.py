@@ -93,8 +93,8 @@ class VTClassifer(torch.nn.Module):
             with torch.no_grad():
                 norm_tensor_std = torch.Tensor(self.bert.dataset_dict['norm_info']['std']).cuda().unsqueeze(0).unsqueeze(0).repeat(output_rev.shape[0], output_rev.shape[1], 1).cuda()
                 norm_tensor_mean = torch.Tensor(self.bert.dataset_dict['norm_info']['mean']).cuda().unsqueeze(0).unsqueeze(0).repeat(output_rev.shape[0], output_rev.shape[1], 1).cuda()
-                norm_tensor_std = torch.where(norm_tensor_std != 0.0, norm_tensor_std, 1)
-                norm_tensor_mean = torch.where(norm_tensor_std != 0.0, norm_tensor_mean, 0)
+                norm_tensor_std = torch.where(norm_tensor_std.float() != 0.0, norm_tensor_std.float(), torch.tensor(1.0, dtype=torch.float, device=norm_tensor_std.device))
+                norm_tensor_mean = torch.where(norm_tensor_std.float() != 0.0, norm_tensor_mean.float(), torch.tensor(0.0, dtype=torch.float, device=norm_tensor_std.device))
                 for i, p in enumerate(self.bert.person_range):
                     norm_tensor_mean[i, self.bert.n_visits[p]:, :] = 0
                     norm_tensor_std[i, self.bert.n_visits[p]:, :] = 1
@@ -106,8 +106,8 @@ class VTClassifer(torch.nn.Module):
             with torch.no_grad():
                 norm_tensor_std = torch.Tensor(self.bert.dataset_dict['norm_info']['std']).cuda().unsqueeze(0).unsqueeze(0).repeat(x.shape[0], x.shape[1], 1).cuda()
                 norm_tensor_mean = torch.Tensor(self.bert.dataset_dict['norm_info']['mean']).cuda().unsqueeze(0).unsqueeze(0).repeat(x.shape[0], x.shape[1], 1).cuda()
-                norm_tensor_std = torch.where(norm_tensor_std != 0.0, norm_tensor_std, 1)
-                norm_tensor_mean = torch.where(norm_tensor_std != 0.0, norm_tensor_mean, 0)
+                norm_tensor_std = torch.where(norm_tensor_std.float() != 0.0, norm_tensor_std.float(), torch.tensor(1.0, dtype=torch.float, device=norm_tensor_std.device))
+                norm_tensor_mean = torch.where(norm_tensor_std.float() != 0.0, norm_tensor_mean.float(), torch.tensor(0.0, dtype=torch.float, device=norm_tensor_std.device))
                 for i, p in enumerate(self.bert.person_range):
                     norm_tensor_mean[i, self.bert.n_visits[p]:, :] = 0
                     norm_tensor_std[i, self.bert.n_visits[p]:, :] = 1
