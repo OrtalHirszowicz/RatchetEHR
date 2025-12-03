@@ -53,7 +53,6 @@ class MyNeuralNetClassifier(NeuralNet, BaseEstimator):
         self.reducer = reducer
         
         my_args = {}
-        self.REAL_EPOCH_COUNTER = 0
 
         self.bert_weights = bert_weights
         self.curr_step = 0
@@ -107,6 +106,7 @@ class MyNeuralNetClassifier(NeuralNet, BaseEstimator):
         clf = VTClassifer(
             base_model,  **model_params
         ).cuda()
+        # import ipdb; ipdb.set_trace()
         if self.bert_weights is not None or hyper_params.CONDUCT_TRANSFER_LEARNING:
           bert_pattern = re.compile('bert\.*')
           #bert_pattern = re.compile('bert\.tfs\.layers\.5* | bert\.tfs\.layers\.4* *')
@@ -121,6 +121,7 @@ class MyNeuralNetClassifier(NeuralNet, BaseEstimator):
             # pretrain_state_dict = {key: val for key, val in pretrain_state_dict.items() if bert_pattern.match(key)}
             clf.load_state_dict(pretrain_state_dict, strict=True)
           pretrain_layers = [v for k, v in list(clf.named_parameters()) if bert_pattern.match(k)]
+          # import ipdb; ipdb.set_trace()
           if hyper_params.BERT_LR > 0:
             params = [
               {'params': pretrain_layers, 'is_bert': True, 'mode': hyper_params.OPTIM_TYPE, 'weight_decay': hyper_params.WEIGHT_DECAY}, 
@@ -136,7 +137,11 @@ class MyNeuralNetClassifier(NeuralNet, BaseEstimator):
         if hyper_params.SHOULD_FINETUNE:
             # layers_to_train = ['bert.tfs.layers.0.self_attn.in_proj_weight', 'bert.tfs.layers.0.self_attn.in_proj_bias', 'bert.tfs.layers.0.self_attn.out_proj.weight', 'bert.tfs.layers.0.self_attn.out_proj.bias', 'bert.tfs.layers.0.linear1.weight', 'bert.tfs.layers.0.linear1.bias', 'bert.tfs.layers.0.linear2.weight', 'bert.tfs.layers.0.linear2.bias', 'bert.tfs.layers.0.norm1.weight', 'bert.tfs.layers.0.norm1.bias', 'bert.tfs.layers.0.norm2.weight', 'bert.tfs.layers.0.norm2.bias']
             layers_to_train = ['bert.tfs.layers.4', 'bert.tfs.layers.5', 'feature_transforms', 'feature_batch_norm', 'feature_transform', 'linear_layers', 'reconstruction_layer']
+            # layers_not_to_train = ['bert.tfs', 'bert.cls_embedding', 'bert.pos_encoder', 'bert.norm_layer']
+            # layers_not_to_train = []
+            # layers_to_train = ['bert.transformer_encoder_features.layers.5', 'reconstruction_layer', 'linear_layers']
             for name, param in clf.named_parameters():
+                # if not any(layer_name in name for layer_name in layers_not_to_train):
                 if any(layer_name in name for layer_name in layers_to_train):
                     param.requires_grad = True
                 else:
@@ -269,7 +274,6 @@ class MyNeuralNetClassifier(NeuralNet, BaseEstimator):
         #     params.register_hook(lambda gradient: torch.nn.functional.normalize(gradient) * 10e-1 if len(gradient.shape) > 1 else gradient)
         loss = self.get_loss(y_pred, yi.to(torch.float32), X=Xi, training=True, weight = weight, 
                              epoch_num = epoch_num, prev_batch = prev_batch)
-        import ipdb; ipdb.set_trace()
         if is_train:                            
           loss.backward()
         else:
@@ -349,17 +353,8 @@ class MyNeuralNetClassifier(NeuralNet, BaseEstimator):
         if hyper_params.USE_MSE_LOSS == False:
            if isinstance(y_pred, tuple):
               loss = self.criterion_(y_pred[0].cpu(), y_true)
-              if epoch_num == 0 or epoch_num == 44:
-                  self.losses_list.append(loss)
-                  print(f"epoch_num: {epoch_num}")
-                  print(f"current loss is {loss}")
               return loss
            loss = self.criterion_(y_pred.cpu(), y_true)
-           if epoch_num == 0 or epoch_num == 44:
-              print(y_pred.shape)
-              self.losses_list.append(loss)
-              print(f"epoch_num: {epoch_num}")
-              print(f"current loss is {loss}")
            return loss
         return self.criterion_(y_pred[0].cpu(), y_true) +  (0.25 * torch.nn.MSELoss()(y_pred[1].cpu(), X[1]) if not hyper_params.NOT_USE_MSE_LOSS == True else 0)
 
@@ -447,14 +442,7 @@ class MyNeuralNetClassifier(NeuralNet, BaseEstimator):
           self.notify("on_batch_begin", batch=batch, training=training)
           fit_params['epoch_num'] = epoch_num
           fit_params['prev_batch'] = prev_batch
-          if epoch_num == 0:
-            torch.save(self.module.state_dict(), os.path.join(os.path.abspath(os.curdir), f"eicu_weights_before_{self.REAL_EPOCH_COUNTER}"))
-            self.REAL_EPOCH_COUNTER += 1
-            # import ipdb; ipdb.set_trace()
           step = step_fn(batch, **fit_params)
-          if epoch_num == 0:
-            torch.save(self.module.state_dict(), os.path.join(os.path.abspath(os.curdir), f"eicu_weights_after_{self.REAL_EPOCH_COUNTER}"))
-            # import ipdb; ipdb.set_trace()
           self.history.record_batch(prefix + "_loss", step["loss"].item())
           batch_size = (get_len(batch[0]) if isinstance(batch, (tuple, list))
                         else get_len(batch))

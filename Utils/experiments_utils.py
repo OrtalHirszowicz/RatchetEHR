@@ -74,7 +74,7 @@ def save_norm_info(dataset_dict, data_loader, if_mimic = False, is_test=False):
             import ipdb; ipdb.set_trace()
     means = sums / means_len
     stds = np.nan_to_num(np.sqrt(np.abs((std_sums / means_len) - (means ** 2))))
-    stds[27:] = 0
+    stds[41:] = 0
     if not is_test:
         dataset_dict['norm_info'] = {}
     # print(f"means: {means.__repr__()}")
@@ -90,219 +90,23 @@ def save_norm_info(dataset_dict, data_loader, if_mimic = False, is_test=False):
         
 
     # Hack means to normalize values according to mimic_means/eicu_means
-    # eicu_multiply = {0: 1.1543457508087158,
-    #                 1: 0.4182162582874298,
-    #                 2: 0.6439023017883301,
-    #                 3: 1.304754614830017,
-    #                 4: 0.2815670669078827,
-    #                 5: 0.7608580589294434,
-    #                 6: 0.7266958951950073,
-    #                 7: 0.7319362759590149,
-    #                 8: 1.061784029006958,
-    #                 9: 3.5780935287475586,
-    #                 10: 0.7582082152366638,
-    #                 11: 0.35705775022506714,
-    #                 12: 0.7509816884994507,
-    #                 13: 0.7581446766853333,
-    #                 14: 0.8129744529724121,
-    #                 15: 1.133150339126587,
-    #                 16: 0.7859081625938416,
-    #                 17: 1.2323776483535767,
-    #                 18: 0.7411289215087891,
-    #                 19: 2.851663589477539,
-    #                 20: 0.7586720585823059,
-    #                 21: 0.6318545341491699,
-    #                 22: 0.811314582824707,
-    #                 23: 5.703190326690674,
-    #                 24: 0.8561076521873474,
-    #                 25: 0.8793057799339294}
-
-    # eicu_multiply = {0: 2.125330924987793,
-    #                 1: 1.1330621242523193,
-    #                 2: 1.0537651777267456,
-    #                 3: 2.4396607875823975,
-    #                 4: 0.8294560313224792,
-    #                 5: 0.8699194192886353,
-    #                 6: 0.9715360999107361,
-    #                 7: 0.9771843552589417,
-    #                 8: 1.0438992977142334,
-    #                 9: 1.4898715019226074,
-    #                 10: 0.8932877779006958,
-    #                 11: 0.9925414323806763,
-    #                 12: 1.004792332649231,
-    #                 13: 1.0112175941467285,
-    #                 14: 1.0341627597808838,
-    #                 15: 1.0957410335540771,
-    #                 16: 1.015944480895996,
-    #                 17: 8.334455490112305,
-    #                 18: 0.978984534740448,
-    #                 19: 1.1381853818893433,
-    #                 20: 1.003302812576294,
-    #                 21: 1.39203941822052,
-    #                 22: 0.9594324827194214,
-    #                 23: 17.681446075439453,
-    #                 24: 0.975580632686615,
-    #                 25: 1.0982935428619385}
-
-    # eicu_multiply = {0: 37.049468994140625,
-    #                 1: 19.17434310913086,
-    #                 2: 18.616552352905273,
-    #                 3: 42.14234161376953,
-    #                 4: 237.5410919189453,
-    #                 5: 12.40732192993164,
-    #                 6: 13.88382625579834,
-    #                 7: 13.96271800994873,
-    #                 8: 20.650697708129883,
-    #                 9: 126.07775115966797,
-    #                 10: 16.64463996887207,
-    #                 11: 15.178378105163574,
-    #                 12: 14.363238334655762,
-    #                 13: 14.455086708068848,
-    #                 14: 16.43892478942871,
-    #                 15: 21.663076400756836,
-    #                 16: 14.486641883850098,
-    #                 17: 119.11432647705078,
-    #                 18: 14.007542610168457,
-    #                 19: 45.59672546386719,
-    #                 20: 14.306382179260254,
-    #                 21: 186.80601501464844,
-    #                 22: 13.685796737670898,
-    #                 23: 252.69956970214844,
-    #                 24: 18.178443908691406,
-    #                 25: 20.60381317138672}
-
-    # full_list = list(eicu_multiply.values()) + list([1])*31
-    mimic_means = [84.5626897,
-                    1.26641865,
-                    67.4690172,
-                    121.72434,
-                    2.5912688,
-                    1.26879189,
-                    25.4866527,
-                    8.3880105,
-                    1.15286064,
-                    205.380628,
-                    1.25769147,
-                    5.06000139,
-                    27.6281699,
-                    77.2428593,
-                    1.74605908,
-                    12.6292338,
-                    3.44685305,
-                    5.25999196,
-                    13.3463771,
-                    17.5751611,
-                    117.796738,
-                    15.7226882,
-                    24.9041986,
-                    108.722238,
-                    5.58675452,
-                    78.1548415,
-                    50.7245765,
-                    0.235339059,
-                    0.229098847,
-                    0.194495326,
-                    0.359920277,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0]
     
-    mimic_stds = [442.482656,
-                1.50404805,
-                116.053069,
-                701.511706,
-                19.7642807,
-                1.56572871,
-                12.2000955,
-                4.02150758,
-                0.908097806,
-                827.246839,
-                1.46468748,
-                9.73698876,
-                12.1153675,
-                34.2262221,
-                1.81738303,
-                9.61587548,
-                1.57577731,
-                28.37154,
-                6.27917662,
-                8.86548465,
-                50.7389416,
-                18.3196585,
-                24.5045973,
-                7386.76516,
-                3.03902182,
-                70.2873613,
-                27.6980806,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0]
-    
-    eicu_multiply = {}
-    for i in range(len(mimic_means)):
-        eicu_multiply[i] = mimic_means[i] / means[i] if means[i] != 0 else 1
+    # eicu_multiply = {}
+    # for i in range(len(mimic_means)):
+    #     eicu_multiply[i] = mimic_means[i] / means[i] if means[i] != 0 else 1
 
-    # print(f"eicu_multiply is: {eicu_multiply}")
+    # # print(f"eicu_multiply is: {eicu_multiply}")
 
-    means_value = {}
-    stds_value = {}
-    for i in range(len(mimic_means)):
-        means_value[i] = mimic_means[i] / eicu_multiply[i] if eicu_multiply[i] != 0 else 1
-        stds_value[i] = mimic_stds[i] / eicu_multiply[i] if eicu_multiply[i] != 0 else 0
+    # means_value = {}
+    # stds_value = {}
+    # for i in range(len(mimic_means)):
+    #     means_value[i] = mimic_means[i] / eicu_multiply[i] if eicu_multiply[i] != 0 else 1
+    #     stds_value[i] = mimic_stds[i] / eicu_multiply[i] if eicu_multiply[i] != 0 else 0
     
     if not is_test:
         dataset_dict['norm_info']['mean'] = means if hyper_params.SHOULD_FINETUNE else means
-        dataset_dict['norm_info']['std'] = list(stds_value.values()) if hyper_params.SHOULD_FINETUNE else stds 
+        # dataset_dict['norm_info']['std'] = list(stds_value.values()) if hyper_params.SHOULD_FINETUNE else stds 
+        dataset_dict['norm_info']['std'] = stds
     # return mimic_means, mimic_stds
     return means, stds
 
@@ -345,6 +149,7 @@ class ExperimentConducterTransferLearning:
         self.num_transformer_blocks_to_freeze = param_dict['num_transformer_blocks_to_freeze']
         self.lower_lr = param_dict['lower_lr']
         self.lower_weight_decay = param_dict['lower_weight_decay']
+        self.is_change_lr = param_dict['is_change_lr']
 
     def conduct_experiment(self, num, task_name, ft_epochs,
         bert_weights, visit_transformer_type = 'VisitTransformer', use_sampler = False, feature_set_info = None):
@@ -382,7 +187,7 @@ class ExperimentConducterTransferLearning:
                 valid_ds = MyDatasetSingle(self.max_visits, self.dataset_dict['n_visits'], self.dataset_dict['visits_data'], task_name, 
                     self.X_test, self.y_test, clf = None, mbsz = mbsz, should_mask_input=False, dataset_dict = dataset_dict, feature_set_info=feature_set_info)
                 valid_ds.set_normalize_data(True)
-                splitter = None#predefined_split(valid_ds)
+                splitter = None# predefined_split(valid_ds)
             else:
                 splitter = ValidSplit(hyper_params.K_FOLD_SIZE, stratified = True)
             
@@ -394,7 +199,7 @@ class ExperimentConducterTransferLearning:
                 ('train_auc_pr', EpochScoring(scoring='average_precision', name = 'auc_pr', on_train=True, lower_is_better=False)), 
                 ('checkpoint', Checkpoint(monitor= hyper_params.MONITOR_TYPE, f_params = config.DEFAULT_SAVE_LOC + "/SavedModels/" + config.TASK + 
                                                         '/best_model_' + self.model_name + '_' + str(i) + '_' + str(hyper_params.SEED_NUMBER))),
-                ('lr_scheduler', lr_scheduler_callback),
+                ('lr_scheduler', lr_scheduler_callback if self.is_change_lr else None),
                 ('test_loss', EpochScoring(scoring='neg_log_loss', name='test_loss', lower_is_better=True, on_train=False)),
             ]
             if not hyper_params.USE_TEST_GROUP:
@@ -426,10 +231,7 @@ class ExperimentConducterTransferLearning:
         if not hyper_params.TEST_ONLY:
             for i, net in enumerate(nets):
                 net[2].dataset_dict = net[1]
-                import ipdb; ipdb.set_trace()
                 history = net[0].fit(X = net[2], y = np.array(self.y_train))
-                print(f"losses list: {net[0].losses_list}")
-                import ipdb; ipdb.set_trace()
             ##Drawing AUC curve 
             plt.clf()
             training_roc_auc_arr = [x['roc_auc'] for x in history.history]

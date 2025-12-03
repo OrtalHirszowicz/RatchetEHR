@@ -22,7 +22,8 @@ def postprocess_tensor(person_id, max_visits, task_name):
     #Interpolation of signals from the input (the signals are measurements)
     for feature_idx in range(t_arr.shape[1]):
         curr_signal = pd.DataFrame(t_arr[:, feature_idx])
-        curr_signal_interpolated = curr_signal.interpolate()
+        # curr_signal_interpolated = curr_signal.interpolate()
+        curr_signal_interpolated = curr_signal.fillna(method='ffill')
         dense_tensor[:, feature_idx] = torch.from_numpy(curr_signal_interpolated.values).to(dense_tensor).squeeze(dim = 1)
     #Filling the left NaN values - features that have no information (signal should be only zeros)
     if (max_visits - dense_tensor.shape[0] == 0):

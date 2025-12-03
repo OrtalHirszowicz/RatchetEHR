@@ -89,7 +89,8 @@ def clean_data_person(curr_t, summary_statistics, n_visits, person_id, step = 0.
         curr_signal[:first_non_zero_idx] = torch.empty(size = (first_non_zero_idx, )).fill_(float('nan'))
         curr_signal = pd.DataFrame(curr_signal)
         curr_signal = curr_signal.set_index(pd.date_range(start='1/1/2000', periods=curr_signal.size, freq='2H'))
-        curr_signal_interpolated = curr_signal.interpolate(method = 'time', limit_direction = 'both')
+        # curr_signal_interpolated = curr_signal.interpolate(method = 'time', limit_direction = 'both')
+        curr_signal_interpolated = curr_signal.fillna(method='ffill')
         curr_t[:n_visits[k], feature_idx] = torch.from_numpy(curr_signal_interpolated.values).squeeze(dim = 1)
     return curr_t
 
@@ -121,7 +122,7 @@ def clean_data(visits_data, X_train, y_train, feature_set_info, n_visits, step =
             torch.logical_and((curr_t[:n_visits[k], j] > summary_statistics[j]['75%_1'] * (1 + step)), (curr_t[:n_visits[k], j] != 0.0)))] = float('nan')
         for feature_idx in range(curr_t.shape[1]):
             curr_signal = pd.DataFrame(curr_t[:n_visits[k], feature_idx])
-            curr_signal_interpolated = curr_signal.interpolate()
+            curr_signal_interpolated = curr_signal.fillna(method='ffill')
             curr_t[:n_visits[k], feature_idx] = torch.from_numpy(curr_signal_interpolated.values).squeeze(dim = 1)
         visits_data[k] = (curr_t, t[1].to_dense(), t[2])
 

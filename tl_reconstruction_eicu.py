@@ -40,7 +40,8 @@ import seaborn as sns
 import gc
 
 import hyper_params
-# hyper_params.TEST_ONLY = True
+hyper_params.ALREADY_NORMALIZED = False
+hyper_params.TEST_ONLY = True
 hyper_params.SHOULD_FINETUNE = True
 import math
 
@@ -118,15 +119,18 @@ CONVERT_TWO = {10: '_19', 20: '_3_20', 100: '_100_2_1', 200: '_100_1', 1:'_1_1'}
 # MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = '/bigdata/omerg/RatchetEHR/tmp/tmp/SavedModels/eicu_bsi_100_2h/best_best_model_Transformerbsi'
 if hyper_params.SHOULD_FINETUNE:
     hyper_params.LR = 1e-3
-    MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = '/bigdata/omerg/RatchetEHR/tmp/tmp/SavedModels/mimiciv_bsi_100_2h/best_best_model_Transformerbsi_new_finetune'
+    # MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = '/bigdata/omerg/RatchetEHR/tmp/tmp/SavedModels/mimiciv_bsi_100_2h/best_best_model_Transformerbsi_new_finetune'
+    MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = '/bigdata/omerg/RatchetEHR/mimic_40_features_weights'
+    # MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = 'thesis_eicu_finetune_50_epochs_threshold_0_5'
+    # MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = 'mimiciv_bsi_100_2h_new_weights_for_finetune'
 else:
     MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = None
     # MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = '/bigdata/omerg/RatchetEHR/tmp/tmp/SavedModels/mimiciv_bsi_100_2h/best_best_model_Transformerbsi_finetune'
 # FEATURESET_FILE_NAME = 'featureset_reconstruction_eicu_' + str(NUM_MESUREMENTS) + '_' + str(NUM_MESUREMENTS) + '_2_ReconstructionTransformer'
 if 2 == hyper_params.NUM_HOURS_FOR_WINDOW:
-    FEATURESET_FILE_NAME = "omer_try_eicu_featureset_mimiciv_bsi_100_2h_100_2_Transformermimiciv"
+    FEATURESET_FILE_NAME = "temp_new_unit_eicu_new_f_featureset_eicu_bsi_100_2h_100_2_Transformer"
 elif 4 == hyper_params.NUM_HOURS_FOR_WINDOW:
-    FEATURESET_FILE_NAME = "omer_try_eicu_featureset_mimiciv_bsi_100_4h_100_4_Transformermimiciv"
+    FEATURESET_FILE_NAME = "food"
 else:
     raise ValueError("FEATURESET is not defined for this num of hours")
 HIDDEN_SIZE = {100: 1, 20: 1, 10: 2, 1:1}
@@ -303,10 +307,13 @@ temporal_features_list_measurements = list(set(temporal_features_list_measuremen
 # Build the Feature Set by executing SQL queries and reading into tensors
 # The tensors are located in featureSet.tensors_for_person. A dictionary where each key is a person_id and each value is 
 # the person's tensor.
-feature_set_path = config.DEFAULT_SAVE_LOC + '/new_unit_omer2_featureset_' + TASK + '_' + str(NUM_MESUREMENTS) + '_' + str(NUM_HOURS_FOR_WINDOW) \
+feature_set_path = config.DEFAULT_SAVE_LOC + '/bloodcultures_unit_eicu_new_f_featureset_' + TASK + '_' + str(NUM_MESUREMENTS) + '_' + str(NUM_HOURS_FOR_WINDOW) \
                     + '_' + MODEL_NAME
 print(feature_set_path)  # /bigdata/omerg/RatchetEHR/tmp/tmp/featureset_eicu_bsi_100_2h_100_2_Transformer
 cache_data_path = config.DEFAULT_SAVE_LOC + '/cache_data_bsi_test_' + str(NUM_MESUREMENTS)
+if hyper_params.ALREADY_NORMALIZED:
+    cache_data_path = '/bigdata/omerg/Thesis/METRE/filtered_csv/cache_data_bsi_test_100_40features_METRE_processed'
+    
 
 if SHOULD_UPLOAD_SAVED_FEATURESET_INFO and os.path.isfile(feature_set_path):
     with open(feature_set_path, 'rb') as pickle_file:
@@ -322,7 +329,7 @@ else:
         from_sql_file = False,
         type = "Measurement"
     )
-    eicu_measurements = ['eicu_measurements']
+    eicu_measurements = ['eicu_measurements_direct']
     featureSet.add_default_features(
         eicu_measurements,
         schema_name,
@@ -455,7 +462,6 @@ outcomes_filt = curr_cohort['y'].values
 external_curr_cohort = external_cohort._cohort[np.isin(external_cohort._cohort[unique_id].values, [x[1] for x in external_person_indices])]
 external_curr_cohort = external_curr_cohort.sort_values(by = unique_id)
 external_outcomes_filt = external_curr_cohort['y'].values
-
 #%% 
 # mimic_person_indices  = mimic_featureSetInfo.person_ids
 # mimic_person_indices = list(map(int, mimic_person_indices))
@@ -549,6 +555,8 @@ if hyper_params.CURR_TASK != 'mortality':
     #not_relevant_person_indices_mimic = [mimic_person_indices.index(p) for p in not_relevant_person_indices_mimic]
     person_indices = [(a, b) for a, b in list(np.delete(np.array(person_indices), not_relevant_person_indices_eICU, axis = 0))]
     outcomes_filt = list(np.delete(np.array(outcomes_filt), not_relevant_person_indices_eICU))
+    dataset_dict['person_indices'] = person_indices
+    dataset_dict['outcomes_filt'] = outcomes_filt
     #mimic_person_indices = [(a, b) for a, b in list(np.delete(np.array(mimic_person_indices), not_relevant_person_indices_mimic, axis = 0))]
     #mimic_outcomes_filt = list(np.delete(np.array(mimic_outcomes_filt), not_relevant_person_indices_mimic))
 
@@ -639,112 +647,145 @@ mimic_pr_scores = []
 curr_experiment_num = 0
 
 FIRST_X_TRAIN = 0
-while curr_experiment_num < NUM_EXPERIMENTS:
-    if hyper_params.SEED_NUMBER is not None:
-        import random
-        if curr_experiment_num in [1,2,3,4,6,8]:
-            hyper_params.SEED_NUMBER += 10
+test_scores_dict = {}
+# while curr_experiment_num < NUM_EXPERIMENTS:
+test_per = 0.2
+for feature_dropout in [0.3]:
+    for dropout in [0.5]:
+        for epochs in [50]:
+            for is_change_lr in [False]:
+                for seed in [55,65,75,85,95]:
+                    for is_finetune in [True]:
+                        lr = 1e-3
+                        weight_decay = 0.5
+                        hyper_params.SHOULD_FINETUNE = is_finetune
+                        hyper_params.SEED_NUMBER = seed
+                        hyper_params.DROPOUT = dropout
+                        hyper_params.FEATURE_DROPOUT = feature_dropout
+                        hyper_params.FT_EPOCHS = ft_epochs = experiment_params['ft_epochs'] = epochs
+                        hyper_params.TEST_VAL_PRECENTAGE = test_val_precentage = test_per
+                        hyper_params.WEIGHT_DECAY = weight_decay
+                        experiment_params['is_change_lr'] = is_change_lr
 
-        seed_num = hyper_params.SEED_NUMBER
-        print("Seed: ", seed_num)
-        torch.manual_seed(seed_num)
-        random.seed(seed_num)
-        np.random.seed(seed_num)
-        torch.use_deterministic_algorithms(True)
-        torch.cuda.manual_seed(seed_num)
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
-        torch.cuda.manual_seed_all(seed_num)
+                        if hyper_params.SHOULD_FINETUNE:
+                            hyper_params.LR = lr
+                            experiment_params['lr'] = lr
+                            MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = '/bigdata/omerg/RatchetEHR/mimic_40_features_weights'
+                            # MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = '/bigdata/omerg/RatchetEHR/thesis_eicu_finetune_50_epochs_threshold_0_5'
+                        else:
+                            MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = None
 
 
-    X_train, y_train, X_val, y_val, X_test, y_test, new_dataset_dict = \
-        get_data(visits_data, dataset_dict['person_indices'], dataset_dict, 
-        test_val_precentage, validation_precentage, 
-            max_visits, dataset_dict['n_visits'], curr_cohort, fix_imbalance = False, need_to_clean_data = False, featureSetInfo = featureSetInfo, random_state=hyper_params.SEED_NUMBER)
-    
-    # if curr_experiment_num == 0:
-    #     FIRST_X_TRAIN = X_train
-    # elif FIRST_X_TRAIN != X_train:
-    #     print("Check!")
-    #     import ipdb; ipdb.set_trace()
-    
-    # import ipdb; ipdb.set_trace()
-    if not hyper_params.SHOULD_USE_VAL_SET:
-        X_test += X_val
-        y_test += y_val
-        X_val = X_test
-        y_val = y_test
 
-    if hyper_params.TEST_ONLY:
-        X_test = X_train + X_test
-        y_test = y_train + y_test
+                        print(f"Running with feature_dropout:{hyper_params.FEATURE_DROPOUT}, dropout:{hyper_params.DROPOUT}, epochs: {hyper_params.FT_EPOCHS}, test_per:{hyper_params.TEST_VAL_PRECENTAGE}, is_change_lr: {is_change_lr}, seed_num: {seed}, weight_decay: {weight_decay}")
+                        if hyper_params.SEED_NUMBER is not None:
+                            import random
 
-    ### OMER 
-    person_ids_in_X_train = [person_id for _, person_id in X_train] 
-    person_ids_in_X_test = [person_id for _, person_id in X_test] 
-    cohort_with_y_equals_1 = curr_cohort[curr_cohort['y'] == 1]
-    person_ids_with_y_equals_1 = set(cohort_with_y_equals_1['example_id'])
-    positive_train_count = sum(1 for person_id in person_ids_in_X_train if person_id in person_ids_with_y_equals_1)
-    positive_test_count = sum(1 for person_id in person_ids_in_X_test if person_id in person_ids_with_y_equals_1)
-    print(f"Train count {len(person_ids_in_X_train)}")
-    print(f"Test count {len(person_ids_in_X_test)}")
-    print(f"Train positive percentage is {positive_train_count / len(person_ids_in_X_train)}")
-    print(f"Test positive percentage is {positive_test_count / len(person_ids_in_X_test)}")
-    ###
+                            seed_num = hyper_params.SEED_NUMBER
+                            print("Seed: ", seed_num)
+                            torch.manual_seed(seed_num)
+                            random.seed(seed_num)
+                            np.random.seed(seed_num)
+                            torch.use_deterministic_algorithms(True)
+                            torch.cuda.manual_seed(seed_num)
+                            torch.backends.cudnn.deterministic = True
+                            torch.backends.cudnn.benchmark = False
+                            torch.cuda.manual_seed_all(seed_num)
+                        
+                        model_params =  get_model_params(embedding_dim, n_heads, featureSetInfo, dropout=dropout, feature_dropout=feature_dropout, weight_decay=weight_decay)
+                        experiment_params['model_params'] = model_params
+                        print(f"experiment_params['model_params']: {experiment_params['model_params']}")
 
-    if hyper_params.CURR_TASK != 'mortality':
-        dataset = MyDatasetSingle(hyper_params.MAX_VISITS, dataset_dict['n_visits'], dataset_dict['visits_data'], TASK, X_train, y_train,
-        mbsz = hyper_params.MBSZ, dataset_dict = dataset_dict, feature_set_info=featureSetInfo)
-        features_info_counter = None
-        for x in DataLoader(dataset = dataset, batch_size = hyper_params.MBSZ, pin_memory=True, num_workers=hyper_params.NUM_WORKERS):
-            for i in range(x[0][1].shape[0]):
-                if features_info_counter == None:
-                    features_info_counter = 1 * torch.all(x[0][1][i, :dataset_dict['n_visits'][x[0][0][i].item()], :len(featureSetInfo.numeric_feature_to_index)] == 0, dim = 0)
-                else:
-                    features_info_counter += 1 * torch.all(x[0][1][i, :dataset_dict['n_visits'][x[0][0][i].item()], :len(featureSetInfo.numeric_feature_to_index)] == 0, dim = 0)
-        features_info_counter = features_info_counter / len(dataset)
-        not_good_features = [i for i, val in enumerate(features_info_counter) if val < hyper_params.FEATURES_INFO_PRECENTAGE_FOR_STAY_LOWER_THRESHOLD]
-        dataset_dict['not_good_features'] = not_good_features
+                        X_train, y_train, X_val, y_val, X_test, y_test, new_dataset_dict = \
+                            get_data(visits_data, dataset_dict['person_indices'], dataset_dict, 
+                            test_val_precentage, validation_precentage, 
+                                max_visits, dataset_dict['n_visits'], curr_cohort, fix_imbalance = False, need_to_clean_data = False, featureSetInfo = featureSetInfo, random_state=hyper_params.SEED_NUMBER)
+                        
+                        # if curr_experiment_num == 0:
+                        #     FIRST_X_TRAIN = X_train
+                        # elif FIRST_X_TRAIN != X_train:
+                        #     print("Check!")
+                        #     import ipdb; ipdb.set_trace()
+                        
+                        # import ipdb; ipdb.set_trace()
+                        if not hyper_params.SHOULD_USE_VAL_SET:
+                            X_test += X_val
+                            y_test += y_val
+                            X_val = X_test
+                            y_val = y_test
 
-    experiment_params['X_train'] = X_train
-    experiment_params['y_train'] = y_train
-    experiment_params['X_val'] = X_val
-    experiment_params['y_val'] = y_val
-    experiment_params['X_test'] = X_test
-    experiment_params['y_test'] = y_test
-    experiment_params['dataset_dict'] = new_dataset_dict
+                        if hyper_params.TEST_ONLY:
+                            X_test = X_train + X_test
+                            y_test = y_train + y_test
 
-    print("Experiment number ", curr_experiment_num)
-    #print(max_distance)
-    curr_experiment_num += 1
+                        ### OMER 
+                        person_ids_in_X_train = [person_id for _, person_id in X_train] 
+                        person_ids_in_X_test = [person_id for _, person_id in X_test] 
+                        cohort_with_y_equals_1 = curr_cohort[curr_cohort['y'] == 1]
+                        person_ids_with_y_equals_1 = set(cohort_with_y_equals_1['example_id'])
+                        positive_train_count = sum(1 for person_id in person_ids_in_X_train if person_id in person_ids_with_y_equals_1)
+                        positive_test_count = sum(1 for person_id in person_ids_in_X_test if person_id in person_ids_with_y_equals_1)
+                        print(f"Train count {len(person_ids_in_X_train)}")
+                        print(f"Test count {len(person_ids_in_X_test)}")
+                        print(f"Train positive percentage is {positive_train_count / len(person_ids_in_X_train)}")
+                        print(f"Test positive percentage is {positive_test_count / len(person_ids_in_X_test)}")
+                        ###
 
-    conducter = ExperimentConducterTransferLearning(experiment_params)
-    mimic_score, curr_score, pr_score, mimic_pr_score, transformer_net = conducter.conduct_experiment(num = curr_experiment_num, ft_epochs = ft_epochs, task_name = TASK, 
-                    bert_weights= MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION, use_sampler = hyper_params.USE_SAMPLER, feature_set_info = featureSetInfo
-                    )
-    test_scores.append(curr_score)
-    pr_scores.append(pr_score)
-    if mimic_score != -1:
-        mimic_scores.append(mimic_score)
-    if mimic_pr_score != -1:
-        mimic_pr_scores.append(mimic_pr_score)
-    if curr_score > max_score:
-        max_score = curr_score
-        del max_net
-        gc.collect()
-        torch.cuda.empty_cache()
-        max_net = transformer_net
-    else:
-        del transformer_net
-        gc.collect()
-        torch.cuda.empty_cache()
+                        if hyper_params.CURR_TASK != 'mortality':
+                            dataset = MyDatasetSingle(hyper_params.MAX_VISITS, dataset_dict['n_visits'], dataset_dict['visits_data'], TASK, X_train, y_train,
+                            mbsz = hyper_params.MBSZ, dataset_dict = dataset_dict, feature_set_info=featureSetInfo)
+                            features_info_counter = None
+                            for x in DataLoader(dataset = dataset, batch_size = hyper_params.MBSZ, pin_memory=True, num_workers=hyper_params.NUM_WORKERS):
+                                for i in range(x[0][1].shape[0]):
+                                    if features_info_counter == None:
+                                        features_info_counter = 1 * torch.all(x[0][1][i, :dataset_dict['n_visits'][x[0][0][i].item()], :len(featureSetInfo.numeric_feature_to_index)] == 0, dim = 0)
+                                    else:
+                                        features_info_counter += 1 * torch.all(x[0][1][i, :dataset_dict['n_visits'][x[0][0][i].item()], :len(featureSetInfo.numeric_feature_to_index)] == 0, dim = 0)
+                            features_info_counter = features_info_counter / len(dataset)
+                            not_good_features = [i for i, val in enumerate(features_info_counter) if val < hyper_params.FEATURES_INFO_PRECENTAGE_FOR_STAY_LOWER_THRESHOLD]
+                            dataset_dict['not_good_features'] = not_good_features
+
+                        experiment_params['X_train'] = X_train
+                        experiment_params['y_train'] = y_train
+                        experiment_params['X_val'] = X_val
+                        experiment_params['y_val'] = y_val
+                        experiment_params['X_test'] = X_test
+                        experiment_params['y_test'] = y_test
+                        experiment_params['dataset_dict'] = new_dataset_dict
+
+                        print("Experiment number ", curr_experiment_num)
+                        #print(max_distance)
+                        curr_experiment_num += 1
+
+                        conducter = ExperimentConducterTransferLearning(experiment_params)
+                        mimic_score, curr_score, pr_score, mimic_pr_score, transformer_net = conducter.conduct_experiment(num = curr_experiment_num, ft_epochs = ft_epochs, task_name = TASK, 
+                                        bert_weights= MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION, use_sampler = hyper_params.USE_SAMPLER, feature_set_info = featureSetInfo
+                                        )
+                        test_scores.append(curr_score)
+                        test_scores_dict[f"lr_{lr}_is_finetune_{is_finetune}_feature_dropout_{hyper_params.FEATURE_DROPOUT}_dropout_{hyper_params.DROPOUT}_epochs_{hyper_params.FT_EPOCHS}_test_per_{hyper_params.TEST_VAL_PRECENTAGE}_is_changed_lr_{is_change_lr}_seed_num_{seed_num}_weight_decay_{weight_decay}"] = curr_score
+                        pr_scores.append(pr_score)
+                        if mimic_score != -1:
+                            mimic_scores.append(mimic_score)
+                        if mimic_pr_score != -1:
+                            mimic_pr_scores.append(mimic_pr_score)
+                        if curr_score > max_score:
+                            max_score = curr_score
+                            del max_net
+                            gc.collect()
+                            torch.cuda.empty_cache()
+                            max_net = transformer_net
+                        else:
+                            del transformer_net
+                            gc.collect()
+                            torch.cuda.empty_cache()
 
 print(f"test_scores: {test_scores}")
+print(f"test_scores_dict: {test_scores_dict}")
 #Saving the best model parameters:
 torch.save(max_net.module.state_dict(), 
            config.DEFAULT_SAVE_LOC + "/SavedModels/" + TASK + '/best_best_model_' + MODEL_NAME + ADDITIONAL_NAME_FOR_EXPERIMENT) 
-with open(r'/bigdata/omerg/RatchetEHR/best_eicu.pkl', 'wb') as f:
-    pickle.dump(max_net, f)
+# Note: Skipping pickle.dump of entire net object due to skorch callback serialization issues
+# The state_dict saved above is sufficient for model loading
 # %%
 
 test_scores = pd.DataFrame(np.concatenate((np.array(test_scores).reshape(-1, 1), np.array(pr_scores).reshape(-1, 1)), axis = 1), columns = ['ROC-AUC score', 'AUC-PR score'])

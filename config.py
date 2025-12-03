@@ -1,4 +1,3 @@
-
 # Database Setup
 DB_NAME = 'mimic'
 PG_USERNAME = 'postgres'

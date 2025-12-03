@@ -46,6 +46,7 @@ NUM_MESUREMENTS = 100   #DONE
 NUM_LAST_VISITS = 1
 FEATURES_INFO_PRECENTAGE_FOR_STAY_LOWER_THRESHOLD = 0#.3
 STAY_INFO_PRECENTAGE_LOW_THRESHOLD = 0
+ALREADY_NORMALIZED = False
 
 USE_RNN = False
 USE_LSTM = False
@@ -94,12 +95,12 @@ elif experiment_name == "bsi_mimiciv_train":
     LOCATION_WEIGHTS = "/bigdata/ortalcohen/Thesis/OB/OMOP/omop-learn/Tasks/BSI/outputs/Weights/Transformerreconstruction_mimiciv_no_transfer"
     USE_TEST_GROUP = True
     ADDITIONAL_NAME = ""
-    NUM_EXPERIMENTS = 1
-    MBSZ =  17 #DONE
+    NUM_EXPERIMENTS = 8
+    MBSZ =  16 #DONE
     DROPOUT = 0.5 #DONE
     FEATURE_DROPOUT = 0.3
     TEST_VAL_PRECENTAGE = 0.2
-    FT_EPOCHS =  5 #20 #DONE
+    FT_EPOCHS =  10 #20 #DONE
     LR = 1e-3 #DONE
     WEIGHT_DECAY = 0.3  #DONE
     HIDDEN_LAYERS = [1024, 512] #Was 512   #DONE
@@ -116,7 +117,7 @@ elif experiment_name == "bsi_mimiciv_train":
     USE_INIT_DATA = False
     MIMIC_PRECENTAGE_IN_TRAINING_DATA = 0 
     FEATURES_INFO_PRECENTAGE_FOR_STAY_LOWER_THRESHOLD = 0#.3
-    STAY_INFO_PRECENTAGE_LOW_THRESHOLD = 0
+    STAY_INFO_PRECENTAGE_LOW_THRESHOLD = 0.5
     SHOULD_USE_VAL_SET = False
     MONITOR_TYPE = 'val_roc_auc_best' if SHOULD_USE_VAL_SET else 'roc_auc_best'
     OUTLIERS_HIGHER_THRESHOLD = -1.5
@@ -146,7 +147,7 @@ elif experiment_name == "bsi_mimiciv_train_no_choi":
     DROPOUT = 0.6 #DONE
     FEATURE_DROPOUT = 0.3
     TEST_VAL_PRECENTAGE = 0.1
-    FT_EPOCHS = 5 #20 #DONE
+    FT_EPOCHS = 10 #20 #DONE
     LR = 1e-3 #DONE
     WEIGHT_DECAY = 0.3  #DONE
     HIDDEN_LAYERS = [1024, 512] #Was 512   #DONE

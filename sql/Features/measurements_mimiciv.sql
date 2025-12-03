@@ -81,18 +81,18 @@ measurements_mimiciv as (
     select 
     example_id, 
 	person_id,
-    feature_name || '-- Numeric' as feature_name,
+    feature_name as feature_name,
 	feature_value,
 	feature_start_date	
     from
     measurments_raw
-    where 
-    feature_name in (select feature_name from relevant_feature_names) or feature_name in 
-    ('Temperature', 'C-Reactive Protein', 'Hematocrit', 'Hemoglobin', 'Potassium', 
-    'Sodium', 'pH', 'pO2', 'PT', 'INR(PT)', 'WBC', 'WBC Count', 'Lactate Dehydrogenase (LD)', 
-    'Lactate', 'RDW', 'RBC', 'Asparate Aminotransferase (AST)', 'MCHC', 'Bilirubin', 
-    'Neutrophils', 'Albumin', 'Creatinine', 'Hematocrit', 'Alkaline Phosphatase', 'MCV', 
-    'Alanine Aminotransferase (ALT)', 'Lymphocytes', 'Urea Nitrogen')
+    -- where 
+    -- feature_name in (select feature_name from relevant_feature_names) or feature_name in 
+    -- ('Temperature', 'C-Reactive Protein', 'Hematocrit', 'Hemoglobin', 'Potassium', 
+    -- 'Sodium', 'pH', 'pO2', 'PT', 'INR(PT)', 'WBC', 'WBC Count', 'Lactate Dehydrogenase (LD)', 
+    -- 'Lactate', 'RDW', 'RBC', 'Asparate Aminotransferase (AST)', 'MCHC', 'Bilirubin', 
+    -- 'Neutrophils', 'Albumin', 'Creatinine', 'Hematocrit', 'Alkaline Phosphatase', 'MCV', 
+    -- 'Alanine Aminotransferase (ALT)', 'Lymphocytes', 'Urea Nitrogen')
 ), person_with_date AS (
 SELECT 
     b.example_id,

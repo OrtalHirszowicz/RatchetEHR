@@ -131,14 +131,14 @@ converted as (
         example_id,
         person_id,
         feature_name,
-        -- CASE
-        --     WHEN lower(unit) = 'mg/l' THEN (feature_value * 0.1)
-        --     WHEN lower(unit) = 'g/dl' THEN (feature_value * 100)
-        --     WHEN lower(unit) = 'mmol/l' THEN (feature_value * 18)
-        --     WHEN lower(unit) = 'meq/l' THEN (feature_value * 18)
-        --     WHEN lower(unit) = 'deg. f' THEN (feature_value / 33.8)
-        --     ELSE feature_value
-        -- END as 
+        CASE
+            WHEN lower(unit) = 'mg/l' THEN (feature_value * 0.1)
+            WHEN lower(unit) = 'g/dl' THEN (feature_value * 100)
+            WHEN lower(unit) = 'mmol/l' THEN (feature_value * 18)
+            WHEN lower(unit) = 'meq/l' THEN (feature_value * 18)
+            WHEN lower(unit) = 'deg. f' THEN (feature_value / 33.8)
+            ELSE feature_value
+        END as 
         feature_value,
         feature_start_date,
         unit

@@ -98,10 +98,13 @@ else:
 # MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = "/bigdata/omerg/RatchetEHR/tmp/tmp/SavedModels/mimiciv_bsi_100_2h/best_best_model_Transformerbsi"
 # FEATURESET_FILE_NAME = None
 # FEATURESET_FILE_NAME = 'omer_featureset_reconstruction_mimic_' + str(NUM_MESUREMENTS) + '_' + str(NUM_MESUREMENTS) + '_2_ReconstructionTransformer'
-FEATURESET_FILE_NAME = 'omer_try_mimic_featureset_mimiciv_bsi_100_2h_100_2_Transformermimiciv'
+FEATURESET_FILE_NAME = 'temp_mimic_new_f_featureset_mimiciv_bsi_100_2h_100_2_Transformermimiciv'
 HIDDEN_SIZE = {100: 1, 20: 1, 10: 2, 1:1}
 NUM_ATTENTION_HEADS = HIDDEN_SIZE[NUM_MESUREMENTS]
 SHOULD_UPDATE_DATA = not SHOULD_UPLOAD_SAVED_FEATURESET_INFO
+
+hyper_params.TEST_ONLY = True
+MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = 'mimiciv_bsi_100_2h_new_weights_for_finetune'
 
 DF_PRECENTAGE = hyper_params.DF_PRECENTAGE 
 # %% [markdown]
@@ -169,14 +172,14 @@ cohort.build(db, replace=reset_schema)
 # Build the Feature Set by executing SQL queries and reading into tensors
 # The tensors are located in featureSet.tensors_for_person. A dictionary where each key is a person_id and each value is 
 # the person's tensor.
-feature_set_path = config.DEFAULT_SAVE_LOC + '/temp_omer1_featureset_' + TASK + '_' + str(NUM_MESUREMENTS) + '_' + str(NUM_HOURS_FOR_WINDOW) \
+feature_set_path = config.DEFAULT_SAVE_LOC + '/try2_mimic_new_f_featureset_' + TASK + '_' + str(NUM_MESUREMENTS) + '_' + str(NUM_HOURS_FOR_WINDOW) \
                     + '_' + MODEL_NAME + 'mimiciv'
 print(feature_set_path) # /bigdata/omerg/RatchetEHR/tmp/tmp/featureset_mimiciv_bsi_100_2h_100_2_Transformermimiciv  
 cache_data_path = config.DEFAULT_SAVE_LOC + '/cache_data_bsi_test_' + str(NUM_MESUREMENTS) + 'mimiciv'
 
 
 # feature_set_path = "/bigdata/omerg/RatchetEHR/tmp/tmp/" + FEATURESET_FILE_NAME
-if SHOULD_UPLOAD_SAVED_FEATURESET_INFO and os.path.isfile(feature_set_path):
+if False and SHOULD_UPLOAD_SAVED_FEATURESET_INFO and os.path.isfile(feature_set_path):
     with open(feature_set_path, 'rb') as pickle_file:
         featureSetInfo = pickle.load(pickle_file)
 else:
@@ -242,6 +245,13 @@ def get_dict_path(person_id):
 
 # %%
 person_indices  = featureSetInfo.person_ids
+
+#### TRY - for testing low amount of data
+# import random
+# person_indices = random.choices(person_indices, k=1296)
+##########################
+
+
 orig_person_indices = list(map(int, person_indices))
 unique_id = featureSetInfo.unique_id_col
 person_indices = set(orig_person_indices).intersection(set(cohort._cohort[unique_id].values))
@@ -420,12 +430,14 @@ pr_scores = []
 
 curr_experiment_num = 0
 
-
-while curr_experiment_num < NUM_EXPERIMENTS:
+test_scores_dict = {}
+# while curr_experiment_num < NUM_EXPERIMENTS:
+for seed in [28, 38, 48, 60]:
+    hyper_params.SEED_NUMBER = seed
     if hyper_params.SEED_NUMBER is not None:
-        import random
-        if curr_experiment_num in [1,2,3,4,5]:
-            hyper_params.SEED_NUMBER += 10
+        # import random
+        # if curr_experiment_num in [1,2,3,4,5]:
+        #     hyper_params.SEED_NUMBER += 10
 
         seed_num = hyper_params.SEED_NUMBER
         print("Seed: ", seed_num)
@@ -438,27 +450,29 @@ while curr_experiment_num < NUM_EXPERIMENTS:
         torch.backends.cudnn.benchmark = False
         torch.cuda.manual_seed_all(seed_num)
         
+    experiment_params['is_change_lr'] = False
+    # import ipdb; ipdb.set_trace()
     X_train, y_train, X_val, y_val, X_test, y_test, new_dataset_dict = \
         get_data(visits_data, dataset_dict['person_indices'], dataset_dict, 
         test_val_precentage, validation_precentage, 
-            max_visits, dataset_dict['n_visits'], curr_cohort, fix_imbalance = False, need_to_clean_data = False, featureSetInfo = featureSetInfo)
+            max_visits, dataset_dict['n_visits'], curr_cohort, fix_imbalance = False, need_to_clean_data = False, featureSetInfo = featureSetInfo, random_state=hyper_params.SEED_NUMBER)
 
     if hyper_params.USE_TEST_GROUP and not hyper_params.TEST_ON_TRAIN:
         print("using test group")
         X_train += X_val
         y_train += y_val
-    # if not hyper_params.SHOULD_USE_VAL_SET:
-    #     X_test += X_val
-    #     y_test += y_val
-    #     X_val = X_test
-    #     y_val = y_test
-    # else:
-    #     X_train += X_val
-    #     y_train += y_val
-    #     X_val = X_test
-    #     y_val = y_test
+    if not hyper_params.SHOULD_USE_VAL_SET:
+        X_test += X_val
+        y_test += y_val
+        X_val = X_test
+        y_val = y_test
+    else:
+        X_train += X_val
+        y_train += y_val
+        X_val = X_test
+        y_val = y_test
     
-    ### OMER 
+    # import ipdb; ipdb.set_trace()
     person_ids_in_X_train = [person_id for _, person_id in X_train] 
     person_ids_in_X_test = [person_id for _, person_id in X_test] 
     cohort_with_y_equals_1 = curr_cohort[curr_cohort['y'] == 1]
@@ -514,6 +528,7 @@ while curr_experiment_num < NUM_EXPERIMENTS:
                     bert_weights= MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION, use_sampler = hyper_params.USE_SAMPLER, feature_set_info = featureSetInfo
                     )
     test_scores.append(curr_score)
+    test_scores_dict[f"seed_{seed}"] = curr_score
     pr_scores.append(pr_score)
     torch.save(transformer_net.module.state_dict(), 
            config.DEFAULT_SAVE_LOC + "/SavedModels/" + TASK + '/best_best_model_' + MODEL_NAME + ADDITIONAL_NAME_FOR_EXPERIMENT + "_" + str(curr_experiment_num)) 
@@ -527,12 +542,14 @@ while curr_experiment_num < NUM_EXPERIMENTS:
         del transformer_net
         gc.collect()
         torch.cuda.empty_cache()
+
+print(f"test_scores: {test_scores}")
+print(f"test_scores_dict: {test_scores_dict}")
 #Saving the best model parameters:
 torch.save(max_net.module.state_dict(), 
            config.DEFAULT_SAVE_LOC + "/SavedModels/" + TASK + '/best_best_model_' + MODEL_NAME + ADDITIONAL_NAME_FOR_EXPERIMENT) 
-with open(r'/bigdata/omerg/RatchetEHR/best_mimic.pkl', 'wb') as f:
-    pickle.dump(max_net, f)
-print(f"test_scores: {test_scores}")
+# Note: Skipping pickle.dump of entire net object due to skorch callback serialization issues
+# The state_dict saved above is sufficient for model loading
 # %%
 
 test_scores = pd.DataFrame(np.concatenate((np.array(test_scores).reshape(-1, 1), np.array(pr_scores).reshape(-1, 1)), axis = 1), columns = ['ROC-AUC score', 'AUC-PR score'])
