@@ -6,7 +6,8 @@ SELECT
         WHEN unittype = 'MICU' THEN 1
         ELSE 0
     END)::text as feature_value,
-    Null::timestamp without time zone as feature_start_date
+    Null::timestamp without time zone as feature_start_date,
+    '' as unit
 FROM 
     eicu_crd.patient a
 JOIN  
@@ -24,7 +25,8 @@ SELECT
         WHEN unittype = 'SICU' THEN 1
         ELSE 0
     END)::text as feature_value,
-    Null::timestamp without time zone as feature_start_date
+    Null::timestamp without time zone as feature_start_date,
+    '' as unit
 FROM 
     eicu_crd.patient a
 JOIN  
@@ -42,7 +44,8 @@ SELECT
         WHEN unittype = 'Med-Surg ICU' THEN 1
         ELSE 0
     END)::text as feature_value,
-    Null::timestamp without time zone as feature_start_date
+    Null::timestamp without time zone as feature_start_date,
+    '' as unit
 FROM 
     eicu_crd.patient a
 JOIN  

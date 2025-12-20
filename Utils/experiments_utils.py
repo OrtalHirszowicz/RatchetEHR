@@ -75,20 +75,25 @@ def save_norm_info(dataset_dict, data_loader, if_mimic = False, is_test=False):
     means = sums / means_len
     stds = np.nan_to_num(np.sqrt(np.abs((std_sums / means_len) - (means ** 2))))
     stds[41:] = 0
-    if not is_test:
-        dataset_dict['norm_info'] = {}
+        
     # print(f"means: {means.__repr__()}")
     # print(f"stds: {stds.__repr__()}")
 
-    if is_test:
-        train_test_multiply = []
-        for i in range(26):
-            train_test_multiply.append(dataset_dict['norm_info']['mean'][i] / means[i])
+
+        # train_test_multiply = []
+        # for i in range(26):
+        #     train_test_multiply.append(dataset_dict['norm_info']['mean'][i] / means[i])
         
         # print(f"mimic_eicu_multiply: {train_test_multiply}")
-        return
+    if hyper_params.TEST_ONLY or is_test:
+        norm_info_path = '/bigdata/omerg/RatchetEHR/tmp/tmp/norm_info.pkl' 
+        with open(norm_info_path, 'rb') as f:
+            norm_info = pickle.load(f)
+        dataset_dict['norm_info'] = {}
+        dataset_dict['norm_info']['mean'] = norm_info['mean']
+        dataset_dict['norm_info']['std'] = norm_info['std']
+        return means, stds
         
-
     # Hack means to normalize values according to mimic_means/eicu_means
     
     # eicu_multiply = {}
@@ -104,9 +109,18 @@ def save_norm_info(dataset_dict, data_loader, if_mimic = False, is_test=False):
     #     stds_value[i] = mimic_stds[i] / eicu_multiply[i] if eicu_multiply[i] != 0 else 0
     
     if not is_test:
+        dataset_dict['norm_info'] = {}
         dataset_dict['norm_info']['mean'] = means if hyper_params.SHOULD_FINETUNE else means
         # dataset_dict['norm_info']['std'] = list(stds_value.values()) if hyper_params.SHOULD_FINETUNE else stds 
         dataset_dict['norm_info']['std'] = stds
+        
+        # Save means and stds to file
+        norm_info_path = '/bigdata/omerg/RatchetEHR/tmp/tmp/norm_info.pkl' 
+        with open(norm_info_path, 'wb') as f:
+            pickle.dump({'mean': means, 'std': stds}, f)
+        print(f"Saved norm_info to {norm_info_path}")
+        import ipdb; ipdb.set_trace()
+        
     # return mimic_means, mimic_stds
     return means, stds
 

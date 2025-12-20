@@ -3,6 +3,7 @@ SELECT
     person_id,
     feature_name,
     feature_value::text as feature_value,
-    feature_start_date::timestamp without time zone
+    feature_start_date::timestamp without time zone,
+    '' as unit
 FROM 
     person_with_date

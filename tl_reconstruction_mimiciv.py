@@ -104,7 +104,8 @@ NUM_ATTENTION_HEADS = HIDDEN_SIZE[NUM_MESUREMENTS]
 SHOULD_UPDATE_DATA = not SHOULD_UPLOAD_SAVED_FEATURESET_INFO
 
 hyper_params.TEST_ONLY = True
-MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = 'mimiciv_bsi_100_2h_new_weights_for_finetune'
+# MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = 'mimiciv_bsi_100_2h_new_weights_for_finetune'
+MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = '/bigdata/omerg/RatchetEHR/mimic_40_features_weights'
 
 DF_PRECENTAGE = hyper_params.DF_PRECENTAGE 
 # %% [markdown]
@@ -179,7 +180,7 @@ cache_data_path = config.DEFAULT_SAVE_LOC + '/cache_data_bsi_test_' + str(NUM_ME
 
 
 # feature_set_path = "/bigdata/omerg/RatchetEHR/tmp/tmp/" + FEATURESET_FILE_NAME
-if False and SHOULD_UPLOAD_SAVED_FEATURESET_INFO and os.path.isfile(feature_set_path):
+if SHOULD_UPLOAD_SAVED_FEATURESET_INFO and os.path.isfile(feature_set_path):
     with open(feature_set_path, 'rb') as pickle_file:
         featureSetInfo = pickle.load(pickle_file)
 else:

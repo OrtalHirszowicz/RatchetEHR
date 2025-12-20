@@ -6,7 +6,8 @@ SELECT
         WHEN gender = 'Male' THEN 0
         ELSE 1
     END)::text as feature_value,
-    Null::timestamp without time zone as feature_start_date
+    Null::timestamp without time zone as feature_start_date,
+    '' as unit
 FROM 
     eicu_crd.patient a
 JOIN  

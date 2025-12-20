@@ -42,7 +42,7 @@ import gc
 import hyper_params
 hyper_params.ALREADY_NORMALIZED = False
 hyper_params.TEST_ONLY = True
-hyper_params.SHOULD_FINETUNE = True
+hyper_params.SHOULD_FINETUNE = False
 import math
 
 import math
@@ -97,7 +97,7 @@ print("Folder Num: ", hyper_params.ADDITIONAL_NAME)
 # Some parameters:
 
 # %%
-SHOULD_USE_CACHE = False
+SHOULD_USE_CACHE = True
 NUM_MESUREMENTS = 100 #00 #100 #600
 SHOULD_UPLOAD_SAVED_FEATURESET_INFO = True
 SHOULD_DO_GRID_SEARCH = False
@@ -310,7 +310,7 @@ temporal_features_list_measurements = list(set(temporal_features_list_measuremen
 feature_set_path = config.DEFAULT_SAVE_LOC + '/bloodcultures_unit_eicu_new_f_featureset_' + TASK + '_' + str(NUM_MESUREMENTS) + '_' + str(NUM_HOURS_FOR_WINDOW) \
                     + '_' + MODEL_NAME
 print(feature_set_path)  # /bigdata/omerg/RatchetEHR/tmp/tmp/featureset_eicu_bsi_100_2h_100_2_Transformer
-cache_data_path = config.DEFAULT_SAVE_LOC + '/cache_data_bsi_test_' + str(NUM_MESUREMENTS)
+cache_data_path = config.DEFAULT_SAVE_LOC + '/cache_data_bsi_test_' + str(NUM_MESUREMENTS) + '_corrected'
 if hyper_params.ALREADY_NORMALIZED:
     cache_data_path = '/bigdata/omerg/Thesis/METRE/filtered_csv/cache_data_bsi_test_100_40features_METRE_processed'
     
@@ -319,6 +319,7 @@ if SHOULD_UPLOAD_SAVED_FEATURESET_INFO and os.path.isfile(feature_set_path):
     with open(feature_set_path, 'rb') as pickle_file:
         featureSetInfo = pickle.load(pickle_file)
 else:
+    print("using cache file: ", cache_data_path)
     featureSet = FeatureGenerator.FeatureSet(db, task_name = TASK,
     feature_set_file_name = FEATURESET_FILE_NAME)
     temporal_features_list_observation = [{"name": 'language', "observation_concept_id": 40758030}]

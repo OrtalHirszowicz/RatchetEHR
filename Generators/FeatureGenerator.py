@@ -353,6 +353,8 @@ class FeatureSet():
         chunk[['example_id', 'person_id']].fillna(0, inplace = True)
         chunk[['feature_name']].fillna("", inplace = True)
         chunk[['feature_value']].fillna('0', inplace = True)
+        if 'unit' in chunk.columns:
+            chunk[['unit']].fillna("", inplace = True)
         return chunk.dropna(subset = ['feature_start_date'])
         #return chunk
 
@@ -449,7 +451,7 @@ class FeatureSet():
         curr_id = 0
         curr_id_numeric = 0
         counter = 0
-        col_to_dtype = {'example_id' : int  , 'person_id' : int, 'feature_name' : str , 'feature_value' : str}
+        col_to_dtype = {'example_id' : int  , 'person_id' : int, 'feature_name' : str , 'feature_value' : str, 'unit' : str}
         #Getting information about persons and different features
         for chunk in pd.read_csv(store, chunksize=chunksize, dtype= col_to_dtype):
             chunk_without_null = self.fill_na(chunk)

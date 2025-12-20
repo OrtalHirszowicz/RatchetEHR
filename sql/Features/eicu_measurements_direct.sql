@@ -16,7 +16,7 @@ WITH blood_cultures AS (
                 labname as feature_name,
                 labresult as feature_value,
                 (date '2000-1-1' + (labresultoffset * interval  '1 minutes')) as feature_start_date,
-                labMeasureNameSystem as unit
+                COALESCE(labmeasurenameinterface, labMeasureNameSystem) as unit
             FROM 
                 eicu_crd.lab as a
             JOIN
@@ -39,7 +39,7 @@ WITH blood_cultures AS (
                 nursingchartcelltypevalname as feature_name,
                 CASE WHEN nursingchartvalue~E'^[0-9]+(\\.[0-9]+)?$' THEN nursingchartvalue::float ELSE NULL end as feature_value,
                 (date '2000-1-1' + (nursingChartOffset * interval  '1 minutes')) as feature_start_date,
-                '' as unit
+                nursingchartcelltypevallabel as unit
             FROM 
                 eicu_crd.nursecharting as a
             JOIN
@@ -62,7 +62,7 @@ WITH blood_cultures AS (
                 respchartvaluelabel as feature_name,
                 CASE WHEN respchartvalue~E'^[0-9]+(\\.[0-9]+)?$' THEN respchartvalue::float ELSE NULL end as feature_value,
                 (date '2000-1-1' + (respChartOffset * interval  '1 minutes')) as feature_start_date,
-                '' as unit
+                respcharttypecat as unit
             FROM 
                 eicu_crd.respiratorycharting as a
             JOIN
@@ -148,6 +148,7 @@ WITH blood_cultures AS (
             person_id,
             feature_name,
             feature_value::TEXT as feature_value,
-            feature_start_date
+            feature_start_date,
+            unit
         FROM
             converted

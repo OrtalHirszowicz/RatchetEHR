@@ -4,8 +4,8 @@ with measurments_raw as (
 		person_id,
         label as feature_name,
 		valuenum::text as feature_value,
-		charttime::timestamp without time zone as feature_start_date
-		--valueuom as unit
+		charttime::timestamp without time zone as feature_start_date,
+		valueuom as unit
 	FROM 
 		mimiciv_hosp.labevents
 	join
@@ -30,8 +30,8 @@ with measurments_raw as (
 		person_id,
         result_name as feature_name,
 		result_value::text as feature_value,
-		chartdate::timestamp without time zone as feature_start_date
-		--valueuom as unit
+		chartdate::timestamp without time zone as feature_start_date,
+		result_name as unit
 	FROM 
 		mimiciv_hosp.omr
 	join
@@ -48,8 +48,8 @@ with measurments_raw as (
 		person_id,
         label as feature_name,
 		valuenum::text as feature_value,
-		charttime::timestamp without time zone as feature_start_date
-		--valueuom as unit
+		charttime::timestamp without time zone as feature_start_date,
+		valueuom as unit
 	FROM 
 		mimiciv_icu.chartevents
 	join
@@ -83,7 +83,8 @@ measurements_mimiciv as (
 	person_id,
     feature_name as feature_name,
 	feature_value,
-	feature_start_date	
+	feature_start_date,
+	unit
     from
     measurments_raw
     -- where 
@@ -108,4 +109,4 @@ ON
     (person_id = subject_id)
 )
 
-select distinct * from measurements_mimiciv
+select distinct example_id, person_id, feature_name, feature_value, feature_start_date, unit from measurements_mimiciv
