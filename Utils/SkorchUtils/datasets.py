@@ -134,6 +134,7 @@ class MyDatasetSingle(torch.utils.data.Dataset):
         self.y = y
         self.should_mask_input = should_mask_input
         self.normalize_data = False
+        self.already_normalized = hyper_params.ALREADY_NORMALIZED
 
         self.summary_statistics = update_summary_statistics({}, feature_set_info=feature_set_info)
 
@@ -149,7 +150,7 @@ class MyDatasetSingle(torch.utils.data.Dataset):
         self.if_clean_data = if_clean_data
 
     def set_normalize_data(self, normalize_data):
-        self.normalize_data = normalize_data
+        self.normalize_data = normalize_data and not self.already_normalized
 
     def get_labels(self):
         return self.y

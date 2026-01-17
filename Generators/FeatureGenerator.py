@@ -353,6 +353,8 @@ class FeatureSet():
         chunk[['example_id', 'person_id']].fillna(0, inplace = True)
         chunk[['feature_name']].fillna("", inplace = True)
         chunk[['feature_value']].fillna('0', inplace = True)
+        if 'unit' in chunk.columns:
+            chunk[['unit']].fillna("", inplace = True)
         return chunk.dropna(subset = ['feature_start_date'])
         #return chunk
 
@@ -400,6 +402,7 @@ class FeatureSet():
             max_value = len(self.feature_codes_to_id)
 
         print("Building BOW")
+        import ipdb; ipdb.set_trace()
         one_hot_tensors = {person_id: get_tensor_shape(person_id, max_value) for person_id in self.person_ids}
         store = open(cache_file + self.end_date_posfix ,'rb')
         person_ids = set(self.person_ids)
@@ -418,6 +421,7 @@ class FeatureSet():
                     curr_tensor[row[self.time_col] : row[self.end_time_col], row[self.feature_value_col]] = 1
                 one_hot_tensors[p_id] = curr_tensor
         
+        import ipdb; ipdb.set_trace()
         for p_id in one_hot_tensors:
             dict_file = self.get_dict_path(p_id)
             with open(dict_file, 'rb') as pickle_file:
@@ -447,7 +451,7 @@ class FeatureSet():
         curr_id = 0
         curr_id_numeric = 0
         counter = 0
-        col_to_dtype = {'example_id' : int  , 'person_id' : int, 'feature_name' : str , 'feature_value' : str}
+        col_to_dtype = {'example_id' : int  , 'person_id' : int, 'feature_name' : str , 'feature_value' : str, 'unit' : str}
         #Getting information about persons and different features
         for chunk in pd.read_csv(store, chunksize=chunksize, dtype= col_to_dtype):
             chunk_without_null = self.fill_na(chunk)
@@ -469,7 +473,9 @@ class FeatureSet():
             self.feature_names = self.feature_names.union(curr_non_numeric_features)
             counter += 1
             del curr_non_numeric_features
-            
+
+        # import ipdb; ipdb.set_trace()
+        self.feature_names = set(['gender', 'first_care_unit_TSICU', 'first_care_unit_MICU', 'first_care_unit_SICU', 'age']) 
         gc.collect()
 
         print("Counter = ", counter)

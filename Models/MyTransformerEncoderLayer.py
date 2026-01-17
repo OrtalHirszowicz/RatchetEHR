@@ -62,13 +62,15 @@ class MyTransformerEncoderLayer(Module):
 
 
     def forward(self, src: Tensor, src_mask: Optional[Tensor] = None,
-                src_key_padding_mask: Optional[Tensor] = None) -> Tensor:
+                src_key_padding_mask: Optional[Tensor] = None,
+                is_causal: bool = False) -> Tensor:
         r"""Pass the input through the encoder layer.
 
         Args:
             src: the sequence to the encoder layer (required).
             src_mask: the mask for the src sequence (optional).
             src_key_padding_mask: the mask for the src keys per batch (optional).
+            is_causal: if True, applies a causal mask (optional). Added for PyTorch 2.0+ compatibility.
 
         Shape:
             see the docs in Transformer class.

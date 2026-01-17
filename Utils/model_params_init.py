@@ -11,6 +11,7 @@ def get_model_params(
         dropout = hyper_params.DROPOUT,
         xavier_gain = hyper_params.XAVIER_GAIN,
         feature_dropout = hyper_params.FEATURE_DROPOUT,
+        weight_decay = hyper_params.WEIGHT_DECAY,
         ):
     model_params = {
         'embedding_dim': int(embedding_dim / n_heads), # Dimension per head of visit embeddings
@@ -28,7 +29,8 @@ def get_model_params(
         'use_probas' : True,
         'n_parallel_pools' : 10,
         'tf_connection_hidden_size': 300,
-        'optimizer__bert_lr': hyper_params.BERT_LR
+        'optimizer__bert_lr': hyper_params.BERT_LR,
+        'weight_decay': weight_decay,
         #'hidden_size' : 200
     }
     return {hyper_params.MODEL_PARAMS_PREFIX + k: v for k, v in model_params.items()}

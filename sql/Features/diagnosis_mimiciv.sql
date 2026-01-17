@@ -4,8 +4,8 @@ with person_with_diagnsosis_icd10 AS (
         a.subject_id as person_id, 
         'diagnosis' as feature_name,
         icd10cm as feature_value,
-        extract (epoch from b.start_date) as feature_start_date,
-        extract (epoch from b.end_date) as feature_end_date
+        COALESCE(extract(epoch from b.start_date), 0) as feature_start_date,
+        COALESCE(extract(epoch from b.end_date), 0) as feature_end_date
     FROM 
     (    mimiciv_hosp.diagnoses_icd a
     JOIN
@@ -30,8 +30,8 @@ with person_with_diagnsosis_icd10 AS (
         a.subject_id as person_id, 
         'diagnosis' as feature_name,
         icd_code as feature_value,
-        extract (epoch from b.start_date) as feature_start_date,
-        extract (epoch from b.end_date) as feature_end_date
+        COALESCE(extract(epoch from b.start_date), 0) as feature_start_date,
+        COALESCE(extract(epoch from b.end_date), 0) as feature_end_date
     FROM 
         mimiciv_hosp.diagnoses_icd a
     JOIN
@@ -49,8 +49,8 @@ with person_with_diagnsosis_icd10 AS (
         person_id, 
         feature_name,
         'diagnosis -- ' || "Disease" as feature_value,
-        feature_start_date as feature_start_date,
-        feature_end_date as feature_end_date
+        COALESCE(feature_start_date, 0) as feature_start_date,
+        COALESCE(feature_end_date, 0) as feature_end_date
     FROM 
         person_with_diagnsosis_icd10
     JOIN
@@ -63,8 +63,8 @@ with person_with_diagnsosis_icd10 AS (
         a.subject_id as person_id, 
         'medical_history' as feature_name,
         'medical_history -- ' || value   as feature_value,
-        extract(epoch from b.start_datetime) as feature_start_date,
-        extract (epoch from (b.end_datetime - b.start_datetime)) as feature_end_date
+        COALESCE(extract(epoch from b.start_datetime), 0) as feature_start_date,
+        COALESCE(extract(epoch from b.end_datetime), 0) as feature_end_date
     FROM 
         mimiciv_icu.chartevents a
     JOIN
@@ -93,8 +93,8 @@ with person_with_diagnsosis_icd10 AS (
 		person_id,
         'drug' as feature_name,
 		'drug -- ' || drug as feature_value,
-		extract (epoch from starttime - b.start_date) as feature_start_date,
-		LEAST(extract (epoch from b.end_datetime - b.start_date), extract (epoch from stoptime - b.start_date)) as feature_end_date
+		COALESCE(extract(epoch from starttime), 0) as feature_start_date,
+		COALESCE(extract(epoch from stoptime), 0) as feature_end_date
 	FROM 
 		mimiciv_hosp.prescriptions
 	join

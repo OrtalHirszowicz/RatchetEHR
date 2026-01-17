@@ -1,9 +1,12 @@
-
-SEED_NUMBER = None
+TRAIN_ONLY = False
+TEST_ONLY = False
+SHOULD_FINETUNE = False
+TEST_ON_TRAIN = False
+SEED_NUMBER = 28
 ZERO_FEATURES = False
 PERFORM_WARMPUP = False
 USE_TEST_GROUP = False
-USE_MSE_LOSS = True
+USE_MSE_LOSS = False
 FT_FEATURE_SIZE = 128
 NOT_USE_MSE_LOSS = False 
 ZERO_VISITS = False
@@ -37,11 +40,13 @@ FEATURE_DROPOUT = 0.3 #.1 #0.05  #DONE
 FEATURE_WEIGHT_DECAY = 1e-16 
 FEATURE_LR = 1e-4 #5e-5 
 SHOULD_USE_GCT_COMPONENT = True
+SHOULD_USE_CHOI_COMPONENT = True
 ADDITIONAL_NAME = ""  #DONE
 NUM_MESUREMENTS = 100   #DONE
 NUM_LAST_VISITS = 1
 FEATURES_INFO_PRECENTAGE_FOR_STAY_LOWER_THRESHOLD = 0#.3
 STAY_INFO_PRECENTAGE_LOW_THRESHOLD = 0
+ALREADY_NORMALIZED = False
 
 USE_RNN = False
 USE_LSTM = False
@@ -52,6 +57,7 @@ USE_INIT_DATA = False
 CALC_EXTERNAL = False
 OPTIMIZER = "ChildTuningAdamW"
 
+LOCATION_OF_RESULTS_ON_TEST_GROUP = "/bigdata/omerg/RatchetEHR/tmp/results_on_test_group"
 LOCATION_WEIGHTS = None
 HIDDEN_LAYERS = 0
 NUM_WORMUP_STEPS = 0
@@ -61,8 +67,11 @@ NUM_LEFT_STEPS = 0
 DROPOUT = 0
 CONDUCT_TRANSFER_LEARNING = False
 #Can be ("rnn", "lstm", 
-# "reconstruction_mimiciv", "bsi_mimiciv_train", "bsi_mimiciv_train_no_gct")
+# "reconstruction_mimiciv", "bsi_mimiciv_train", "bsi_mimiciv_train_no_choi")
 experiment_name = "bsi_mimiciv_train"
+
+# Seems to be required on eICU
+STAY_INFO_PRECENTAGE_LOW_THRESHOLD_VAL_TEST = 0
 
 if experiment_name == "simple":
     ZERO_FEATURES = False
@@ -83,15 +92,15 @@ if experiment_name == "simple":
 elif experiment_name == "bsi_mimiciv_train":
 #BSI - Only eICU
     RESERVE_P = 0.6
-    LOCATION_WEIGHTS = "outputs/Weights/Transformerreconstruction_mimiciv_no_transfer"
+    LOCATION_WEIGHTS = "/bigdata/ortalcohen/Thesis/OB/OMOP/omop-learn/Tasks/BSI/outputs/Weights/Transformerreconstruction_mimiciv_no_transfer"
     USE_TEST_GROUP = True
     ADDITIONAL_NAME = ""
-    NUM_EXPERIMENTS = 10
-    MBSZ =  17 #DONE
+    NUM_EXPERIMENTS = 8
+    MBSZ =  16 #DONE
     DROPOUT = 0.5 #DONE
     FEATURE_DROPOUT = 0.3
-    TEST_VAL_PRECENTAGE = 0.1
-    FT_EPOCHS =  2 #20 #DONE
+    TEST_VAL_PRECENTAGE = 0.2
+    FT_EPOCHS =  10 #20 #DONE
     LR = 1e-3 #DONE
     WEIGHT_DECAY = 0.3  #DONE
     HIDDEN_LAYERS = [1024, 512] #Was 512   #DONE
@@ -102,7 +111,7 @@ elif experiment_name == "bsi_mimiciv_train":
     BERT_LR = 2e-3
     EARLY_STOPPING_EPOCHS = 4     #DONE
     CONDUCT_TRANSFER_LEARNING = True if TRANSFORMER_TYPE == "Regular" else False
-    OPTIM_TYPE = "ChildTuning-D" if CONDUCT_TRANSFER_LEARNING else 'AdamW'
+    OPTIM_TYPE = "ChildTuning-D" if not CONDUCT_TRANSFER_LEARNING else 'AdamW'
     CURR_TASK = 'bsi'
     USE_MIMIC_AS_TEST_DATA = False
     USE_INIT_DATA = False
@@ -112,7 +121,7 @@ elif experiment_name == "bsi_mimiciv_train":
     SHOULD_USE_VAL_SET = False
     MONITOR_TYPE = 'val_roc_auc_best' if SHOULD_USE_VAL_SET else 'roc_auc_best'
     OUTLIERS_HIGHER_THRESHOLD = -1.5
-    NUM_HOURS_FOR_WINDOW = 4
+    NUM_HOURS_FOR_WINDOW = 2
     NUM_TRAINING_HOURS = 5 * 24 
     MAX_VISITS = int(NUM_TRAINING_HOURS // NUM_HOURS_FOR_WINDOW)
     DF_PRECENTAGE = 1
@@ -125,12 +134,12 @@ elif experiment_name == "bsi_mimiciv_train":
     SAMPLE_PRECENTAGE = 0 #0.05
     PERFORM_WARMPUP = False
 
-elif experiment_name == "bsi_mimiciv_train_no_gct":
+elif experiment_name == "bsi_mimiciv_train_no_choi":
 #BSI - Only eICU
-    SHOULD_USE_GCT_COMPONENT = False
+    SHOULD_USE_CHOI_COMPONENT = False
     USE_MSE_LOSS = False
     RESERVE_P = 0.6
-    LOCATION_WEIGHTS = None
+    LOCATION_WEIGHTS = None #"/bigdata/ortalcohen/Thesis/OB/OMOP/omop-learn/Tasks/BSI/outputs/Weights/Transformerreconstruction_mimiciv_no_transfer"
     USE_TEST_GROUP = True
     ADDITIONAL_NAME = ""
     NUM_EXPERIMENTS = 10
@@ -138,7 +147,7 @@ elif experiment_name == "bsi_mimiciv_train_no_gct":
     DROPOUT = 0.6 #DONE
     FEATURE_DROPOUT = 0.3
     TEST_VAL_PRECENTAGE = 0.1
-    FT_EPOCHS = 5 #20 #DONE
+    FT_EPOCHS = 10 #20 #DONE
     LR = 1e-3 #DONE
     WEIGHT_DECAY = 0.3  #DONE
     HIDDEN_LAYERS = [1024, 512] #Was 512   #DONE
@@ -176,7 +185,7 @@ elif experiment_name == "bsi_mimiciv_train_no_gct":
 
 elif experiment_name == "reconstruction_mimiciv":
     CURR_TASK = 'reconstruction_mimiciv'
-    LOCATION_WEIGHTS = "outputs/MIMICIV-Experiments/ratchet_tl/best_best_model_Transformerreconstruction_mimiciv_no_transfer"
+    LOCATION_WEIGHTS = "/bigdata/ortalcohen/tmp/SavedModels/reconstruction_mimiciv_100/best_best_model_Transformerreconstruction_mimiciv_no_transfer"
     USE_TEST_GROUP = False
     ZERO_VISITS = True
     ZERO_FEATURES = True
@@ -214,10 +223,10 @@ elif experiment_name == "reconstruction_mimiciv":
     OPTIMIZER = "AdamW"
 
 elif experiment_name == "reconstruction_mimiciv_no_gct":
-    SHOULD_USE_GCT_COMPONENT = False
+    SHOULD_USE_CHOI_COMPONENT = False
     USE_MSE_LOSS = False
     CURR_TASK = 'reconstruction_mimiciv'
-    LOCATION_WEIGHTS = "outputs/MIMICIV-Experiments/ratchet_tl/best_best_model_Transformerreconstruction_mimiciv_no_transfer"
+    LOCATION_WEIGHTS = "/bigdata/ortalcohen/tmp/SavedModels/reconstruction_mimiciv_100/best_best_model_Transformerreconstruction_mimiciv_no_transfer"
     USE_TEST_GROUP = False
     ZERO_VISITS = True
     ZERO_FEATURES = True

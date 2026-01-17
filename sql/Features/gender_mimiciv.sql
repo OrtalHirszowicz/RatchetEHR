@@ -6,7 +6,8 @@ select
     WHEN gender = 'M' then 0
     else 1
     end)::text as feature_value,
-    NULL::timestamp without time zone as feature_start_date
+    NULL::timestamp without time zone as feature_start_date,
+    '' as unit
     FROM
     {cohort_table} b
     join 

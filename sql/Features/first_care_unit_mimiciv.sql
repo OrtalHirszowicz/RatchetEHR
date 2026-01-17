@@ -6,8 +6,8 @@ SELECT
         when first_careunit = '	Medical/Surgical Intensive Care Unit (MICU/SICU)' or first_careunit = 'Medical Intensive Care Unit (MICU)' then 1
         else 0
         end)::text as feature_value,
-		NULL::timestamp without time zone as feature_start_date
-		--valueuom as unit
+		NULL::timestamp without time zone as feature_start_date,
+		'' as unit
 	FROM 
 		mimiciv_icu.icustays
 	join 
@@ -25,8 +25,8 @@ SELECT
         when first_careunit = '	Medical/Surgical Intensive Care Unit (MICU/SICU)' or first_careunit = 'Surgical Intensive Care Unit (SICU)' then 1
         else 0
         end)::text as feature_value,
-		NULL::timestamp without time zone as feature_start_date
-		--valueuom as unit
+		NULL::timestamp without time zone as feature_start_date,
+		'' as unit
 	FROM 
 		mimiciv_icu.icustays
 	join 
@@ -44,8 +44,8 @@ SELECT
         when first_careunit = 'Trauma SICU (TSICU)' then 1
         else 0
         end)::text as feature_value,
-		NULL::timestamp without time zone as feature_start_date
-		--valueuom as unit
+		NULL::timestamp without time zone as feature_start_date,
+		'' as unit
 	FROM 
 		mimiciv_icu.icustays
 	join 

@@ -52,13 +52,12 @@ plt.rcParams["font.family"] = "serif"
 plt.rcParams["font.size"] = 13
 
 # %%
-assert(torch.cuda.is_available())
+#assert(torch.cuda.is_available())
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 torch.cuda.set_device(hyper_params.DEVICE_NUM)
 
 print("Folder Num: ", hyper_params.ADDITIONAL_NAME)
-print(hyper_params.TEST_VAL_PRECENTAGE)
-# hyper_params.TRAIN_ONLY = True
+
 
 #%% 
 if hyper_params.SEED_NUMBER is not None:
@@ -67,7 +66,7 @@ if hyper_params.SEED_NUMBER is not None:
     torch.manual_seed(seed_num)
     random.seed(seed_num)
     np.random.seed(seed_num)
-    # torch.use_deterministic_algorithms(True)
+    torch.use_deterministic_algorithms(True)
     torch.cuda.manual_seed(seed_num)
     torch.cuda.manual_seed_all(seed_num)
 # %% [markdown]
@@ -88,24 +87,11 @@ SHOULD_USE_WEIGHTS = False
 NUM_EXPERIMENTS = hyper_params.NUM_EXPERIMENTS
 TASK = 'mimiciv_' + hyper_params.CURR_TASK + '_' + str(NUM_MESUREMENTS) + '_' +str(NUM_HOURS_FOR_WINDOW) +'h'
 CONVERT_TWO = {10: '_19', 20: '_3_20', 100: '_100_2_1', 200: '_100_1', 1:'_1_1'}
-# hyper_params.SHOULD_FINETUNE = True
-if hyper_params.SHOULD_FINETUNE:
-  MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = '/bigdata/omerg/RatchetEHR/tmp/tmp/SavedModels/mimiciv_bsi_100_2h/best_best_model_Transformerbsi_old_finetune'
-else:
-    MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = None  
-# MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = hyper_params.LOCATION_WEIGHTS
-# MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = None
-# MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = "/bigdata/omerg/RatchetEHR/tmp/tmp/SavedModels/mimiciv_bsi_100_2h/best_best_model_Transformerbsi"
-# FEATURESET_FILE_NAME = None
-# FEATURESET_FILE_NAME = 'omer_featureset_reconstruction_mimic_' + str(NUM_MESUREMENTS) + '_' + str(NUM_MESUREMENTS) + '_2_ReconstructionTransformer'
-FEATURESET_FILE_NAME = 'temp_mimic_new_f_featureset_mimiciv_bsi_100_2h_100_2_Transformermimiciv'
+MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = hyper_params.LOCATION_WEIGHTS
+FEATURESET_FILE_NAME = None
 HIDDEN_SIZE = {100: 1, 20: 1, 10: 2, 1:1}
 NUM_ATTENTION_HEADS = HIDDEN_SIZE[NUM_MESUREMENTS]
 SHOULD_UPDATE_DATA = not SHOULD_UPLOAD_SAVED_FEATURESET_INFO
-
-hyper_params.TEST_ONLY = True
-# MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = 'mimiciv_bsi_100_2h_new_weights_for_finetune'
-MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = '/bigdata/omerg/RatchetEHR/mimic_40_features_weights'
 
 DF_PRECENTAGE = hyper_params.DF_PRECENTAGE 
 # %% [markdown]
@@ -148,7 +134,6 @@ db.execute(
 
 # %%
 cohort_script_path = config.SQL_PATH_COHORTS + '/' + hyper_params.CURR_TASK + '_mimiciv_cohort.sql'
-database_script_path = config.SQL_PATH_COHORTS + '/BSI_database.sql'
 
 # cohort parameters  
 params = {
@@ -173,13 +158,10 @@ cohort.build(db, replace=reset_schema)
 # Build the Feature Set by executing SQL queries and reading into tensors
 # The tensors are located in featureSet.tensors_for_person. A dictionary where each key is a person_id and each value is 
 # the person's tensor.
-feature_set_path = config.DEFAULT_SAVE_LOC + '/try2_mimic_new_f_featureset_' + TASK + '_' + str(NUM_MESUREMENTS) + '_' + str(NUM_HOURS_FOR_WINDOW) \
+feature_set_path = config.DEFAULT_SAVE_LOC + '/featureset_' + TASK + '_' + str(NUM_MESUREMENTS) + '_' + str(NUM_HOURS_FOR_WINDOW) \
                     + '_' + MODEL_NAME + 'mimiciv'
-print(feature_set_path) # /bigdata/omerg/RatchetEHR/tmp/tmp/featureset_mimiciv_bsi_100_2h_100_2_Transformermimiciv  
 cache_data_path = config.DEFAULT_SAVE_LOC + '/cache_data_bsi_test_' + str(NUM_MESUREMENTS) + 'mimiciv'
 
-
-# feature_set_path = "/bigdata/omerg/RatchetEHR/tmp/tmp/" + FEATURESET_FILE_NAME
 if SHOULD_UPLOAD_SAVED_FEATURESET_INFO and os.path.isfile(feature_set_path):
     with open(feature_set_path, 'rb') as pickle_file:
         featureSetInfo = pickle.load(pickle_file)
@@ -202,8 +184,6 @@ else:
         from_sql_file = True,
         type = "Measurement"
     )
-
-    
     non_temportal_feature_list = ['age_mimiciv',  'gender_mimiciv',  'first_care_unit_mimiciv']
     featureSet.add_default_features(
         non_temportal_feature_list,
@@ -222,21 +202,20 @@ else:
         type = "Diagnosis",
         with_feature_end_date = True
     )
-
     time_delta = FeatureGenerator.TimeDelta(hours = NUM_HOURS_FOR_WINDOW)#(hours = 2)
     #numeric_names = pd.read_csv("./Tables/mimic_name_to_general.txt", sep = ' -- ')
     #featureSet.numeric_features += list(numeric_names["General"].values)
     # featureSet.postprocess_func = post_process
     featureSet.build(cohort, time_delta = time_delta, from_cached=SHOULD_USE_CACHE, cache_file=cache_data_path,
-                    use_prebuilt_features = True)
+                    use_prebuilt_features = False)
     featureSet.build_bit_vec_features(cohort, time_delta = time_delta, from_cached=SHOULD_USE_CACHE, cache_file=cache_data_path,
-                    use_prebuilt_features = True)              
+                    use_prebuilt_features = False)              
     featureSetInfo = FeatureSetInfo(featureSet, task_name=TASK)
     with open(feature_set_path, 'wb') as pickle_file:
         pickle.dump(featureSetInfo, pickle_file)
 
 
-# import ipdb; ipdb.set_trace()
+
 # %% [markdown]
 # ### 4. Process the collected data and calculate indices needed for the deep model
 
@@ -246,13 +225,6 @@ def get_dict_path(person_id):
 
 # %%
 person_indices  = featureSetInfo.person_ids
-
-#### TRY - for testing low amount of data
-# import random
-# person_indices = random.choices(person_indices, k=1296)
-##########################
-
-
 orig_person_indices = list(map(int, person_indices))
 unique_id = featureSetInfo.unique_id_col
 person_indices = set(orig_person_indices).intersection(set(cohort._cohort[unique_id].values))
@@ -278,7 +250,6 @@ one_label_precentage = np.sum(outcomes_filt) / len(outcomes_filt)
 print("Precentage of 1 label: ", one_label_precentage)
 print("For now uses Weighted random sampler")
 
-
 # %%
 if SHOULD_UPDATE_DATA:
     def update_data(person_id):
@@ -303,7 +274,6 @@ if SHOULD_UPDATE_DATA:
 
 # source_visits_data = OrderedDict({person_id: get_data_transformer(person_id) for person_id in sorted(person_indices)})
 
-#TODO: Ortal - add this
 
 visits_data = DataGetter([TASK])
 
@@ -317,14 +287,12 @@ dataset_dict = {
     'num_invariant_features': featureSetInfo.num_non_numeric_features,
 }
 
-
 not_good_features_file_path = config.DEFAULT_SAVE_LOC + 'not_good_features_file_path_mimiciv'
 with open(not_good_features_file_path, 'rb') as pickle_file:
     not_good_features = pickle.load(pickle_file)
     not_good_features += [0, 2, 3, 5, 8, 10, 15, 16, 17, 18, 21, 22, 24, 25, 26, 27, 28, 29, 30, 32, 36, 37, 39, 43, 44, 46, 47, 50, 57, 62, 64, 65, 66, 72, 73, 74, 75, 76, 77, 78, 80, 81, 82, 84, 87, 95, 96, 97, 99, 100, 101, 102, 103, 104, 105, 106, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404]
     #[0, 2, 3, 8, 10, 15, 16, 17, 18, 21, 22, 24, 25, 26, 27, 28, 29, 30, 32, 36, 37, 39, 43, 44, 46, 47, 50, 57, 62, 64, 65, 66, 72, 73, 74, 75, 76, 77, 78, 80, 81, 82, 84, 87, 95, 96, 97, 99, 100, 101, 102, 103, 104, 105, 106, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404]
-    # not_good_features = sorted(list(set(not_good_features)))
-    not_good_features = []
+    not_good_features = sorted(list(set(not_good_features)))
     num_numeric_features = len(featureSetInfo.numeric_feature_to_index)
     good_features = list(set(range(num_numeric_features)).difference(not_good_features))
     dataset_dict['not_good_features'] = not_good_features
@@ -431,68 +399,26 @@ pr_scores = []
 
 curr_experiment_num = 0
 
-test_scores_dict = {}
-# while curr_experiment_num < NUM_EXPERIMENTS:
-for seed in [28, 38, 48, 60]:
-    hyper_params.SEED_NUMBER = seed
-    if hyper_params.SEED_NUMBER is not None:
-        # import random
-        # if curr_experiment_num in [1,2,3,4,5]:
-        #     hyper_params.SEED_NUMBER += 10
 
-        seed_num = hyper_params.SEED_NUMBER
-        print("Seed: ", seed_num)
-        torch.manual_seed(seed_num)
-        random.seed(seed_num)
-        np.random.seed(seed_num)
-        torch.use_deterministic_algorithms(True)
-        torch.cuda.manual_seed(seed_num)
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
-        torch.cuda.manual_seed_all(seed_num)
-        
-    experiment_params['is_change_lr'] = False
-    # import ipdb; ipdb.set_trace()
+while curr_experiment_num < NUM_EXPERIMENTS:
     X_train, y_train, X_val, y_val, X_test, y_test, new_dataset_dict = \
         get_data(visits_data, dataset_dict['person_indices'], dataset_dict, 
         test_val_precentage, validation_precentage, 
-            max_visits, dataset_dict['n_visits'], curr_cohort, fix_imbalance = False, need_to_clean_data = False, featureSetInfo = featureSetInfo, random_state=hyper_params.SEED_NUMBER)
+            max_visits, dataset_dict['n_visits'], curr_cohort, fix_imbalance = False, need_to_clean_data = False, featureSetInfo = featureSetInfo)
 
-    if hyper_params.USE_TEST_GROUP and not hyper_params.TEST_ON_TRAIN:
-        print("using test group")
+    if hyper_params.USE_TEST_GROUP:
         X_train += X_val
         y_train += y_val
-    if not hyper_params.SHOULD_USE_VAL_SET:
-        X_test += X_val
-        y_test += y_val
-        X_val = X_test
-        y_val = y_test
-    else:
-        X_train += X_val
-        y_train += y_val
-        X_val = X_test
-        y_val = y_test
-    
-    # import ipdb; ipdb.set_trace()
-    person_ids_in_X_train = [person_id for _, person_id in X_train] 
-    person_ids_in_X_test = [person_id for _, person_id in X_test] 
-    cohort_with_y_equals_1 = curr_cohort[curr_cohort['y'] == 1]
-    person_ids_with_y_equals_1 = set(cohort_with_y_equals_1['example_id'])
-    positive_train_count = sum(1 for person_id in person_ids_in_X_train if person_id in person_ids_with_y_equals_1)
-    positive_test_count = sum(1 for person_id in person_ids_in_X_test if person_id in person_ids_with_y_equals_1)
-    print(f"Train count {len(person_ids_in_X_train)}")
-    print(f"Test count {len(person_ids_in_X_test)}")
-    print(f"Train positive percentage is {positive_train_count / len(person_ids_in_X_train)}")
-    print(f"Test positive percentage is {positive_test_count / len(person_ids_in_X_test)}")
-    ###
-
-    if hyper_params.TEST_ONLY:
-        X_test = X_train + X_test
-        y_test = y_train + y_test
-
-    if hyper_params.TRAIN_ONLY:
-        X_train += X_test
-        y_train += y_test
+    # if not hyper_params.SHOULD_USE_VAL_SET:
+    #     X_test += X_val
+    #     y_test += y_val
+    #     X_val = X_test
+    #     y_val = y_test
+    # else:
+    #     X_train += X_val
+    #     y_train += y_val
+    #     X_val = X_test
+    #     y_val = y_test
 
     
     # if hyper_params.CURR_TASK != 'mortality':
@@ -529,7 +455,6 @@ for seed in [28, 38, 48, 60]:
                     bert_weights= MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION, use_sampler = hyper_params.USE_SAMPLER, feature_set_info = featureSetInfo
                     )
     test_scores.append(curr_score)
-    test_scores_dict[f"seed_{seed}"] = curr_score
     pr_scores.append(pr_score)
     torch.save(transformer_net.module.state_dict(), 
            config.DEFAULT_SAVE_LOC + "/SavedModels/" + TASK + '/best_best_model_' + MODEL_NAME + ADDITIONAL_NAME_FOR_EXPERIMENT + "_" + str(curr_experiment_num)) 
@@ -543,17 +468,13 @@ for seed in [28, 38, 48, 60]:
         del transformer_net
         gc.collect()
         torch.cuda.empty_cache()
-
-print(f"test_scores: {test_scores}")
-print(f"test_scores_dict: {test_scores_dict}")
 #Saving the best model parameters:
 torch.save(max_net.module.state_dict(), 
            config.DEFAULT_SAVE_LOC + "/SavedModels/" + TASK + '/best_best_model_' + MODEL_NAME + ADDITIONAL_NAME_FOR_EXPERIMENT) 
-# Note: Skipping pickle.dump of entire net object due to skorch callback serialization issues
-# The state_dict saved above is sufficient for model loading
+
 # %%
 
-test_scores = pd.DataFrame(np.concatenate((np.array(test_scores).reshape(-1, 1), np.array(pr_scores).reshape(-1, 1)), axis = 1), columns = ['ROC-AUC score', 'AUC-PR score'])
+test_scores = pd.DataFrame(np.concatenate((np.array(test_scores).reshape(-1, 1), np.array(pr_scores).reshape(-1, 1)), axis = 1), columns = ['ROC-AUC score'])
 test_scores['Experiments'] = range(len(test_scores['ROC-AUC score'].values))
 
 # %%
@@ -565,16 +486,6 @@ plt.savefig(config.DEFAULT_SAVE_LOC + '/training_figures/' + MODEL_NAME + ADDITI
 plt.clf()
 ax = sns.boxplot( y = 'ROC-AUC score', data = pd.DataFrame(test_scores))
 plt.savefig(config.DEFAULT_SAVE_LOC + '/training_figures/' + MODEL_NAME + ADDITIONAL_NAME_FOR_EXPERIMENT + '/box_plot_test_set')
-
-# %%
-plt.clf()
-ax = sns.barplot(x = 'Experiments', y = 'AUC-PR score', data = pd.DataFrame(test_scores))
-plt.savefig(config.DEFAULT_SAVE_LOC + '/training_figures/' + MODEL_NAME + ADDITIONAL_NAME_FOR_EXPERIMENT + '/bar_plot_pr_test_set')
-
-# %%
-plt.clf()
-ax = sns.boxplot( y = 'AUC-PR score', data = pd.DataFrame(test_scores))
-plt.savefig(config.DEFAULT_SAVE_LOC + '/training_figures/' + MODEL_NAME + ADDITIONAL_NAME_FOR_EXPERIMENT + '/box_plot_pr_test_set')
 
 #%%
 

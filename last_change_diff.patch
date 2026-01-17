@@ -1,0 +1,377 @@
+diff --git a/Generators/FeatureGenerator.py b/Generators/FeatureGenerator.py
+index 6108c12..74033de 100644
+--- a/Generators/FeatureGenerator.py
++++ b/Generators/FeatureGenerator.py
+@@ -353,6 +353,8 @@ class FeatureSet():
+         chunk[['example_id', 'person_id']].fillna(0, inplace = True)
+         chunk[['feature_name']].fillna("", inplace = True)
+         chunk[['feature_value']].fillna('0', inplace = True)
++        if 'unit' in chunk.columns:
++            chunk[['unit']].fillna("", inplace = True)
+         return chunk.dropna(subset = ['feature_start_date'])
+         #return chunk
+ 
+@@ -449,7 +451,7 @@ class FeatureSet():
+         curr_id = 0
+         curr_id_numeric = 0
+         counter = 0
+-        col_to_dtype = {'example_id' : int  , 'person_id' : int, 'feature_name' : str , 'feature_value' : str}
++        col_to_dtype = {'example_id' : int  , 'person_id' : int, 'feature_name' : str , 'feature_value' : str, 'unit' : str}
+         #Getting information about persons and different features
+         for chunk in pd.read_csv(store, chunksize=chunksize, dtype= col_to_dtype):
+             chunk_without_null = self.fill_na(chunk)
+diff --git a/Utils/experiments_utils.py b/Utils/experiments_utils.py
+index d96bdc3..15254d6 100644
+--- a/Utils/experiments_utils.py
++++ b/Utils/experiments_utils.py
+@@ -75,20 +75,25 @@ def save_norm_info(dataset_dict, data_loader, if_mimic = False, is_test=False):
+     means = sums / means_len
+     stds = np.nan_to_num(np.sqrt(np.abs((std_sums / means_len) - (means ** 2))))
+     stds[41:] = 0
+-    if not is_test:
+-        dataset_dict['norm_info'] = {}
++        
+     # print(f"means: {means.__repr__()}")
+     # print(f"stds: {stds.__repr__()}")
+ 
+-    if is_test:
+-        train_test_multiply = []
+-        for i in range(26):
+-            train_test_multiply.append(dataset_dict['norm_info']['mean'][i] / means[i])
++
++        # train_test_multiply = []
++        # for i in range(26):
++        #     train_test_multiply.append(dataset_dict['norm_info']['mean'][i] / means[i])
+         
+         # print(f"mimic_eicu_multiply: {train_test_multiply}")
+-        return
++    if hyper_params.TEST_ONLY or is_test:
++        norm_info_path = '/bigdata/omerg/RatchetEHR/tmp/tmp/norm_info.pkl' 
++        with open(norm_info_path, 'rb') as f:
++            norm_info = pickle.load(f)
++        dataset_dict['norm_info'] = {}
++        dataset_dict['norm_info']['mean'] = norm_info['mean']
++        dataset_dict['norm_info']['std'] = norm_info['std']
++        return means, stds
+         
+-
+     # Hack means to normalize values according to mimic_means/eicu_means
+     
+     # eicu_multiply = {}
+@@ -104,9 +109,18 @@ def save_norm_info(dataset_dict, data_loader, if_mimic = False, is_test=False):
+     #     stds_value[i] = mimic_stds[i] / eicu_multiply[i] if eicu_multiply[i] != 0 else 0
+     
+     if not is_test:
++        dataset_dict['norm_info'] = {}
+         dataset_dict['norm_info']['mean'] = means if hyper_params.SHOULD_FINETUNE else means
+         # dataset_dict['norm_info']['std'] = list(stds_value.values()) if hyper_params.SHOULD_FINETUNE else stds 
+         dataset_dict['norm_info']['std'] = stds
++        
++        # Save means and stds to file
++        norm_info_path = '/bigdata/omerg/RatchetEHR/tmp/tmp/norm_info.pkl' 
++        with open(norm_info_path, 'wb') as f:
++            pickle.dump({'mean': means, 'std': stds}, f)
++        print(f"Saved norm_info to {norm_info_path}")
++        import ipdb; ipdb.set_trace()
++        
+     # return mimic_means, mimic_stds
+     return means, stds
+ 
+diff --git a/hyper_params.py b/hyper_params.py
+index 73f21af..60933dd 100644
+--- a/hyper_params.py
++++ b/hyper_params.py
+@@ -117,7 +117,7 @@ elif experiment_name == "bsi_mimiciv_train":
+     USE_INIT_DATA = False
+     MIMIC_PRECENTAGE_IN_TRAINING_DATA = 0 
+     FEATURES_INFO_PRECENTAGE_FOR_STAY_LOWER_THRESHOLD = 0#.3
+-    STAY_INFO_PRECENTAGE_LOW_THRESHOLD = 0.5
++    STAY_INFO_PRECENTAGE_LOW_THRESHOLD = 0
+     SHOULD_USE_VAL_SET = False
+     MONITOR_TYPE = 'val_roc_auc_best' if SHOULD_USE_VAL_SET else 'roc_auc_best'
+     OUTLIERS_HIGHER_THRESHOLD = -1.5
+diff --git a/sql/Features/age_eicu.sql b/sql/Features/age_eicu.sql
+index c358555..73531a4 100644
+--- a/sql/Features/age_eicu.sql
++++ b/sql/Features/age_eicu.sql
+@@ -3,6 +3,7 @@ SELECT
+     person_id,
+     feature_name,
+     feature_value as feature_value,
+-    feature_start_date::timestamp without time zone
++    feature_start_date::timestamp without time zone,
++    '' as unit
+ FROM 
+     person_with_date
+\ No newline at end of file
+diff --git a/sql/Features/age_mimiciv.sql b/sql/Features/age_mimiciv.sql
+index e7122c6..a4a89de 100644
+--- a/sql/Features/age_mimiciv.sql
++++ b/sql/Features/age_mimiciv.sql
+@@ -3,6 +3,7 @@ SELECT
+     person_id,
+     feature_name,
+     feature_value::text as feature_value,
+-    feature_start_date::timestamp without time zone
++    feature_start_date::timestamp without time zone,
++    '' as unit
+ FROM 
+     person_with_date
+\ No newline at end of file
+diff --git a/sql/Features/eicu_measurements_direct.sql b/sql/Features/eicu_measurements_direct.sql
+index d2f77e9..41093ce 100644
+--- a/sql/Features/eicu_measurements_direct.sql
++++ b/sql/Features/eicu_measurements_direct.sql
+@@ -16,7 +16,7 @@ WITH blood_cultures AS (
+                 labname as feature_name,
+                 labresult as feature_value,
+                 (date '2000-1-1' + (labresultoffset * interval  '1 minutes')) as feature_start_date,
+-                labMeasureNameSystem as unit
++                COALESCE(labmeasurenameinterface, labMeasureNameSystem) as unit
+             FROM 
+                 eicu_crd.lab as a
+             JOIN
+@@ -39,7 +39,7 @@ WITH blood_cultures AS (
+                 nursingchartcelltypevalname as feature_name,
+                 CASE WHEN nursingchartvalue~E'^[0-9]+(\\.[0-9]+)?$' THEN nursingchartvalue::float ELSE NULL end as feature_value,
+                 (date '2000-1-1' + (nursingChartOffset * interval  '1 minutes')) as feature_start_date,
+-                '' as unit
++                nursingchartcelltypevallabel as unit
+             FROM 
+                 eicu_crd.nursecharting as a
+             JOIN
+@@ -62,7 +62,7 @@ WITH blood_cultures AS (
+                 respchartvaluelabel as feature_name,
+                 CASE WHEN respchartvalue~E'^[0-9]+(\\.[0-9]+)?$' THEN respchartvalue::float ELSE NULL end as feature_value,
+                 (date '2000-1-1' + (respChartOffset * interval  '1 minutes')) as feature_start_date,
+-                '' as unit
++                respcharttypecat as unit
+             FROM 
+                 eicu_crd.respiratorycharting as a
+             JOIN
+@@ -148,6 +148,7 @@ WITH blood_cultures AS (
+             person_id,
+             feature_name,
+             feature_value::TEXT as feature_value,
+-            feature_start_date
++            feature_start_date,
++            unit
+         FROM
+             converted
+\ No newline at end of file
+diff --git a/sql/Features/first_care_unit_eicu.sql b/sql/Features/first_care_unit_eicu.sql
+index bbf4b6f..05e21e3 100644
+--- a/sql/Features/first_care_unit_eicu.sql
++++ b/sql/Features/first_care_unit_eicu.sql
+@@ -6,7 +6,8 @@ SELECT
+         WHEN unittype = 'MICU' THEN 1
+         ELSE 0
+     END)::text as feature_value,
+-    Null::timestamp without time zone as feature_start_date
++    Null::timestamp without time zone as feature_start_date,
++    '' as unit
+ FROM 
+     eicu_crd.patient a
+ JOIN  
+@@ -24,7 +25,8 @@ SELECT
+         WHEN unittype = 'SICU' THEN 1
+         ELSE 0
+     END)::text as feature_value,
+-    Null::timestamp without time zone as feature_start_date
++    Null::timestamp without time zone as feature_start_date,
++    '' as unit
+ FROM 
+     eicu_crd.patient a
+ JOIN  
+@@ -42,7 +44,8 @@ SELECT
+         WHEN unittype = 'Med-Surg ICU' THEN 1
+         ELSE 0
+     END)::text as feature_value,
+-    Null::timestamp without time zone as feature_start_date
++    Null::timestamp without time zone as feature_start_date,
++    '' as unit
+ FROM 
+     eicu_crd.patient a
+ JOIN  
+diff --git a/sql/Features/first_care_unit_mimiciv.sql b/sql/Features/first_care_unit_mimiciv.sql
+index 717caa3..3b873cb 100644
+--- a/sql/Features/first_care_unit_mimiciv.sql
++++ b/sql/Features/first_care_unit_mimiciv.sql
+@@ -6,8 +6,8 @@ SELECT
+         when first_careunit = '	Medical/Surgical Intensive Care Unit (MICU/SICU)' or first_careunit = 'Medical Intensive Care Unit (MICU)' then 1
+         else 0
+         end)::text as feature_value,
+-		NULL::timestamp without time zone as feature_start_date
+-		--valueuom as unit
++		NULL::timestamp without time zone as feature_start_date,
++		'' as unit
+ 	FROM 
+ 		mimiciv_icu.icustays
+ 	join 
+@@ -25,8 +25,8 @@ SELECT
+         when first_careunit = '	Medical/Surgical Intensive Care Unit (MICU/SICU)' or first_careunit = 'Surgical Intensive Care Unit (SICU)' then 1
+         else 0
+         end)::text as feature_value,
+-		NULL::timestamp without time zone as feature_start_date
+-		--valueuom as unit
++		NULL::timestamp without time zone as feature_start_date,
++		'' as unit
+ 	FROM 
+ 		mimiciv_icu.icustays
+ 	join 
+@@ -44,8 +44,8 @@ SELECT
+         when first_careunit = 'Trauma SICU (TSICU)' then 1
+         else 0
+         end)::text as feature_value,
+-		NULL::timestamp without time zone as feature_start_date
+-		--valueuom as unit
++		NULL::timestamp without time zone as feature_start_date,
++		'' as unit
+ 	FROM 
+ 		mimiciv_icu.icustays
+ 	join 
+diff --git a/sql/Features/gender_eicu.sql b/sql/Features/gender_eicu.sql
+index ef11a2b..c2d79a4 100644
+--- a/sql/Features/gender_eicu.sql
++++ b/sql/Features/gender_eicu.sql
+@@ -6,7 +6,8 @@ SELECT
+         WHEN gender = 'Male' THEN 0
+         ELSE 1
+     END)::text as feature_value,
+-    Null::timestamp without time zone as feature_start_date
++    Null::timestamp without time zone as feature_start_date,
++    '' as unit
+ FROM 
+     eicu_crd.patient a
+ JOIN  
+diff --git a/sql/Features/gender_mimiciv.sql b/sql/Features/gender_mimiciv.sql
+index 67f1c29..4082900 100644
+--- a/sql/Features/gender_mimiciv.sql
++++ b/sql/Features/gender_mimiciv.sql
+@@ -6,7 +6,8 @@ select
+     WHEN gender = 'M' then 0
+     else 1
+     end)::text as feature_value,
+-    NULL::timestamp without time zone as feature_start_date
++    NULL::timestamp without time zone as feature_start_date,
++    '' as unit
+     FROM
+     {cohort_table} b
+     join 
+diff --git a/sql/Features/measurements_mimiciv.sql b/sql/Features/measurements_mimiciv.sql
+index a406bc3..84bf4d6 100644
+--- a/sql/Features/measurements_mimiciv.sql
++++ b/sql/Features/measurements_mimiciv.sql
+@@ -4,8 +4,8 @@ with measurments_raw as (
+ 		person_id,
+         label as feature_name,
+ 		valuenum::text as feature_value,
+-		charttime::timestamp without time zone as feature_start_date
+-		--valueuom as unit
++		charttime::timestamp without time zone as feature_start_date,
++		valueuom as unit
+ 	FROM 
+ 		mimiciv_hosp.labevents
+ 	join
+@@ -30,8 +30,8 @@ with measurments_raw as (
+ 		person_id,
+         result_name as feature_name,
+ 		result_value::text as feature_value,
+-		chartdate::timestamp without time zone as feature_start_date
+-		--valueuom as unit
++		chartdate::timestamp without time zone as feature_start_date,
++		result_name as unit
+ 	FROM 
+ 		mimiciv_hosp.omr
+ 	join
+@@ -48,8 +48,8 @@ with measurments_raw as (
+ 		person_id,
+         label as feature_name,
+ 		valuenum::text as feature_value,
+-		charttime::timestamp without time zone as feature_start_date
+-		--valueuom as unit
++		charttime::timestamp without time zone as feature_start_date,
++		valueuom as unit
+ 	FROM 
+ 		mimiciv_icu.chartevents
+ 	join
+@@ -83,7 +83,8 @@ measurements_mimiciv as (
+ 	person_id,
+     feature_name as feature_name,
+ 	feature_value,
+-	feature_start_date	
++	feature_start_date,
++	unit
+     from
+     measurments_raw
+     -- where 
+@@ -108,4 +109,4 @@ ON
+     (person_id = subject_id)
+ )
+ 
+-select distinct * from measurements_mimiciv
+\ No newline at end of file
++select distinct example_id, person_id, feature_name, feature_value, feature_start_date, unit from measurements_mimiciv
+\ No newline at end of file
+diff --git a/tl_reconstruction_eicu.py b/tl_reconstruction_eicu.py
+index 0f623c7..2c11d53 100644
+--- a/tl_reconstruction_eicu.py
++++ b/tl_reconstruction_eicu.py
+@@ -42,7 +42,7 @@ import gc
+ import hyper_params
+ hyper_params.ALREADY_NORMALIZED = False
+ hyper_params.TEST_ONLY = True
+-hyper_params.SHOULD_FINETUNE = True
++hyper_params.SHOULD_FINETUNE = False
+ import math
+ 
+ import math
+@@ -97,7 +97,7 @@ print("Folder Num: ", hyper_params.ADDITIONAL_NAME)
+ # Some parameters:
+ 
+ # %%
+-SHOULD_USE_CACHE = False
++SHOULD_USE_CACHE = True
+ NUM_MESUREMENTS = 100 #00 #100 #600
+ SHOULD_UPLOAD_SAVED_FEATURESET_INFO = True
+ SHOULD_DO_GRID_SEARCH = False
+@@ -310,7 +310,7 @@ temporal_features_list_measurements = list(set(temporal_features_list_measuremen
+ feature_set_path = config.DEFAULT_SAVE_LOC + '/bloodcultures_unit_eicu_new_f_featureset_' + TASK + '_' + str(NUM_MESUREMENTS) + '_' + str(NUM_HOURS_FOR_WINDOW) \
+                     + '_' + MODEL_NAME
+ print(feature_set_path)  # /bigdata/omerg/RatchetEHR/tmp/tmp/featureset_eicu_bsi_100_2h_100_2_Transformer
+-cache_data_path = config.DEFAULT_SAVE_LOC + '/cache_data_bsi_test_' + str(NUM_MESUREMENTS)
++cache_data_path = config.DEFAULT_SAVE_LOC + '/cache_data_bsi_test_' + str(NUM_MESUREMENTS) + '_corrected'
+ if hyper_params.ALREADY_NORMALIZED:
+     cache_data_path = '/bigdata/omerg/Thesis/METRE/filtered_csv/cache_data_bsi_test_100_40features_METRE_processed'
+     
+@@ -319,6 +319,7 @@ if SHOULD_UPLOAD_SAVED_FEATURESET_INFO and os.path.isfile(feature_set_path):
+     with open(feature_set_path, 'rb') as pickle_file:
+         featureSetInfo = pickle.load(pickle_file)
+ else:
++    print("using cache file: ", cache_data_path)
+     featureSet = FeatureGenerator.FeatureSet(db, task_name = TASK,
+     feature_set_file_name = FEATURESET_FILE_NAME)
+     temporal_features_list_observation = [{"name": 'language', "observation_concept_id": 40758030}]
+diff --git a/tl_reconstruction_mimiciv.py b/tl_reconstruction_mimiciv.py
+index bf8d272..8a972fe 100644
+--- a/tl_reconstruction_mimiciv.py
++++ b/tl_reconstruction_mimiciv.py
+@@ -104,7 +104,8 @@ NUM_ATTENTION_HEADS = HIDDEN_SIZE[NUM_MESUREMENTS]
+ SHOULD_UPDATE_DATA = not SHOULD_UPLOAD_SAVED_FEATURESET_INFO
+ 
+ hyper_params.TEST_ONLY = True
+-MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = 'mimiciv_bsi_100_2h_new_weights_for_finetune'
++# MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = 'mimiciv_bsi_100_2h_new_weights_for_finetune'
++MORTALITY_TRANSFORMER_INIT_WEGITHS_LOCATION = '/bigdata/omerg/RatchetEHR/mimic_40_features_weights'
+ 
+ DF_PRECENTAGE = hyper_params.DF_PRECENTAGE 
+ # %% [markdown]
+@@ -179,7 +180,7 @@ cache_data_path = config.DEFAULT_SAVE_LOC + '/cache_data_bsi_test_' + str(NUM_ME
+ 
+ 
+ # feature_set_path = "/bigdata/omerg/RatchetEHR/tmp/tmp/" + FEATURESET_FILE_NAME
+-if False and SHOULD_UPLOAD_SAVED_FEATURESET_INFO and os.path.isfile(feature_set_path):
++if SHOULD_UPLOAD_SAVED_FEATURESET_INFO and os.path.isfile(feature_set_path):
+     with open(feature_set_path, 'rb') as pickle_file:
+         featureSetInfo = pickle.load(pickle_file)
+ else:
